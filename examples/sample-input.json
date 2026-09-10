@@ -1,7 +1,163 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "company_target": 20,
   "resume_provided": true,
-  "search_summary": "FICTIONAL DEMONSTRATION. Candidate and job details are synthetic. example.com links are placeholders, not live job vacancies. Target: Toronto hybrid or remote within Canada; full-time; CAD 65,000+ base salary per year.",
+  "search_summary": "FICTIONAL DEMONSTRATION. Candidate, companies, research and jobs are synthetic; example.com URLs are placeholders, not live vacancies or company evidence. Target: 20 companies, up to 3 suitable verified jobs per company. This deliberately small fixture covers 4 companies and 9 jobs, so the target is unmet. Candidate seeks Toronto hybrid or remote within Canada, full-time, CAD 65,000+ annual base pay. Never pad recommendations with unverified, closed or eligibility-blocked jobs. Fictional layoff checks use a 24-month window through 2026-09-10 plus a broader-history review; findings are limited to the listed simulated sources.",
+  "companies": [
+    {
+      "id": "EXAMPLE-NORTH",
+      "name": "Example North",
+      "url": "https://example.com/companies/north",
+      "checked_at": "2026-09-10",
+      "size": {
+        "value": "350 employees",
+        "as_of": "2026-06-30",
+        "scope": "Company-wide employees; contractors excluded",
+        "basis": "reported",
+        "sources": [
+          {
+            "label": "FICTIONAL: North midyear workforce statement",
+            "url": "https://example.com/companies/north/workforce-2026-06-30"
+          }
+        ]
+      },
+      "headcount_trend": {
+        "direction": "growing",
+        "period_start": "2025-06-30",
+        "period_end": "2026-06-30",
+        "summary": "FICTIONAL: reported employee count rose from 300 to 350 over this dated interval; this does not guarantee future hiring.",
+        "sources": [
+          {
+            "label": "FICTIONAL: North prior workforce statement",
+            "url": "https://example.com/companies/north/workforce-2025-06-30"
+          },
+          {
+            "label": "FICTIONAL: North midyear workforce statement",
+            "url": "https://example.com/companies/north/workforce-2026-06-30"
+          }
+        ]
+      },
+      "latest_layoff": {
+        "status": "reported",
+        "event_date": "2026-08-15",
+        "date_type": "announcement",
+        "summary": "FICTIONAL: latest located announcement affects 12 positions in one product group. The effective date and current net headcount are unknown; the earlier growth interval predates this announcement. The simulated review covered the 24-month window plus a broader-history check in the listed sources; no later announcement was located in that limited review.",
+        "sources": [
+          {
+            "label": "FICTIONAL: North restructuring announcement",
+            "url": "https://example.com/companies/north/restructuring-2026-08-15"
+          },
+          {
+            "label": "FICTIONAL: North 24-month and broader-history layoff review",
+            "url": "https://example.com/research/north-layoff-review-2026-09-10"
+          }
+        ],
+        "searched_from": "2024-09-10",
+        "searched_through": "2026-09-10"
+      }
+    },
+    {
+      "id": "EXAMPLE-FREIGHT",
+      "name": "Example Freight",
+      "url": "https://example.com/companies/freight",
+      "checked_at": "2026-09-10",
+      "size": {
+        "value": "201–500 employees",
+        "as_of": "2026-09-10",
+        "scope": "Company profile range; organization-wide scope as presented by the fictional source",
+        "basis": "range",
+        "sources": [
+          {
+            "label": "FICTIONAL: Freight company profile",
+            "url": "https://example.com/companies/freight/company-profile"
+          }
+        ]
+      },
+      "headcount_trend": {
+        "direction": "unknown",
+        "period_start": null,
+        "period_end": null,
+        "summary": "FICTIONAL: a single broad size range cannot establish a headcount trend.",
+        "sources": []
+      },
+      "latest_layoff": {
+        "status": "none_found",
+        "event_date": null,
+        "date_type": "unspecified",
+        "summary": "FICTIONAL: no layoff report found in the listed simulated sources during the stated 24-month window or the supplemental broader-history check. This is a bounded source review, not proof that no layoffs ever occurred.",
+        "sources": [
+          {
+            "label": "FICTIONAL: Freight newsroom window reviewed",
+            "url": "https://example.com/companies/freight/news-2024-09-10-to-2026-09-10"
+          },
+          {
+            "label": "FICTIONAL: public layoff-notice window and broader-history search",
+            "url": "https://example.com/research/freight-layoff-search-2026-09-10"
+          }
+        ],
+        "searched_from": "2024-09-10",
+        "searched_through": "2026-09-10"
+      }
+    },
+    {
+      "id": "EXAMPLE-PACIFIC",
+      "name": "Example Pacific",
+      "url": "https://example.com/companies/pacific",
+      "checked_at": "2026-09-10",
+      "size": {
+        "value": null,
+        "as_of": null,
+        "scope": "Company-wide headcount; unknown in this fictional scenario",
+        "basis": "unknown",
+        "sources": []
+      },
+      "headcount_trend": {
+        "direction": "unknown",
+        "period_start": null,
+        "period_end": null,
+        "summary": "FICTIONAL: no comparable dated headcount observations available. Unknown is not stable.",
+        "sources": []
+      },
+      "latest_layoff": {
+        "status": "unknown",
+        "event_date": null,
+        "date_type": "unspecified",
+        "summary": "FICTIONAL: layoff research could not be completed; no conclusion about layoffs.",
+        "sources": [],
+        "searched_from": null,
+        "searched_through": null
+      }
+    },
+    {
+      "id": "EXAMPLE-UNVERIFIED",
+      "name": "Example Unverified",
+      "url": null,
+      "checked_at": "2026-09-10",
+      "size": {
+        "value": null,
+        "as_of": null,
+        "scope": "Company-wide headcount; unknown in this fictional scenario",
+        "basis": "unknown",
+        "sources": []
+      },
+      "headcount_trend": {
+        "direction": "unknown",
+        "period_start": null,
+        "period_end": null,
+        "summary": "FICTIONAL: no comparable dated headcount observations available. Unknown is not stable.",
+        "sources": []
+      },
+      "latest_layoff": {
+        "status": "unknown",
+        "event_date": null,
+        "date_type": "unspecified",
+        "summary": "FICTIONAL: layoff research could not be completed; no conclusion about layoffs.",
+        "sources": [],
+        "searched_from": null,
+        "searched_through": null
+      }
+    }
+  ],
   "search_sources": [
     {
       "source": "LinkedIn (simulated)",
@@ -38,19 +194,41 @@
     },
     {
       "source": "Example North careers (simulated)",
-      "url": "https://example.com/jobs/demo-101",
+      "url": "https://example.com/companies/north/careers",
       "method": "employer_site",
-      "query": "SIMULATED: inspect DEMO-101 description and application availability",
+      "query": "SIMULATED: inspect DEMO-101, DEMO-105, DEMO-106 and DEMO-107 descriptions and application entry points",
+      "status": "searched",
+      "checked_at": "2026-09-10",
+      "results_seen": 4,
+      "verified_open": 4,
+      "notes": "Fictional verification: four open eligible requisitions at one company, but recommend at most three. DEMO-101 overlaps LinkedIn; do not sum source counts."
+    },
+    {
+      "source": "Example Freight careers (simulated)",
+      "url": "https://example.com/companies/freight/careers",
+      "method": "employer_site",
+      "query": "SIMULATED: inspect DEMO-102 and DEMO-108 descriptions and application availability",
+      "status": "searched",
+      "checked_at": "2026-09-10",
+      "results_seen": 2,
+      "verified_open": 2,
+      "notes": "Fictional open jobs. DEMO-102 has unknown attendance eligibility; DEMO-108 explicitly matches hybrid. DEMO-102 overlaps other sources."
+    },
+    {
+      "source": "Example Unverified careers (simulated)",
+      "url": "https://example.com/jobs/demo-109",
+      "method": "employer_site",
+      "query": "SIMULATED: inspect DEMO-109 status",
       "status": "searched",
       "checked_at": "2026-09-10",
       "results_seen": 1,
-      "verified_open": 1,
-      "notes": "Fictional verification step. All source counts in this example are synthetic and overlap; do not sum them as unique jobs."
+      "verified_open": 0,
+      "notes": "Fictional posting explicitly closed; not recommended. DEMO-104 remains an inaccessible lead from a different requisition."
     }
   ],
   "jobs": [
     {
-      "salary": "CAD 70,000\u201385,000 base salary per year; employer-stated in fictional JD",
+      "salary": "CAD 70,000–85,000 base salary per year; employer-stated in fictional JD",
       "posted_at": "2026-09-08",
       "checked_at": "2026-09-10",
       "posting_status": "open",
@@ -101,7 +279,7 @@
         {
           "constraint": "CAD 65,000 minimum annual base pay",
           "status": "met",
-          "evidence": "Fictional JD: CAD 70,000\u201385,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
+          "evidence": "Fictional JD: CAD 70,000–85,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
         },
         {
           "constraint": "Full-time employment",
@@ -111,17 +289,24 @@
       ],
       "id": "DEMO-101",
       "discovered_via": [
-        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-101"},
-        {"source": "Example North careers (simulated)", "url": "https://example.com/jobs/demo-101"}
+        {
+          "source": "LinkedIn (simulated)",
+          "url": "https://example.com/demo-linkedin/demo-101"
+        },
+        {
+          "source": "Example North careers (simulated)",
+          "url": "https://example.com/jobs/demo-101"
+        }
       ],
       "title": "Customer Success Specialist",
       "company": "Example North",
       "url": "https://example.com/jobs/demo-101",
-      "location": "Toronto, Canada \u2014 hybrid",
-      "notes": "Fictional JD employment type: full-time. Emphasize onboarding results and explain the scope of account ownership truthfully."
+      "location": "Toronto, Canada — hybrid",
+      "notes": "Fictional JD employment type: full-time. Emphasize onboarding results and explain the scope of account ownership truthfully.",
+      "company_id": "EXAMPLE-NORTH"
     },
     {
-      "salary": "CAD 65,000\u201375,000 base salary per year; employer-stated in fictional JD",
+      "salary": "CAD 65,000–75,000 base salary per year; employer-stated in fictional JD",
       "posted_at": "2026-09-08",
       "checked_at": "2026-09-10",
       "posting_status": "open",
@@ -177,17 +362,24 @@
       ],
       "id": "DEMO-102",
       "discovered_via": [
-        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-102"},
-        {"source": "Indeed (simulated)", "url": "https://example.com/demo-indeed/demo-102"}
+        {
+          "source": "LinkedIn (simulated)",
+          "url": "https://example.com/demo-linkedin/demo-102"
+        },
+        {
+          "source": "Indeed (simulated)",
+          "url": "https://example.com/demo-indeed/demo-102"
+        }
       ],
       "title": "Operations Coordinator",
       "company": "Example Freight",
       "url": "https://example.com/jobs/demo-102",
-      "location": "Toronto, Canada \u2014 on-site schedule unclear",
-      "notes": "Fictional JD employment type: full-time. Clarify on-site expectations; prepare an example of coordinating handoffs."
+      "location": "Toronto, Canada — on-site schedule unclear",
+      "notes": "Fictional JD employment type: full-time. Clarify on-site expectations; prepare an example of coordinating handoffs.",
+      "company_id": "EXAMPLE-FREIGHT"
     },
     {
-      "salary": "USD 60,000\u201375,000 base salary per year; employer-stated in fictional JD",
+      "salary": "USD 60,000–75,000 base salary per year; employer-stated in fictional JD",
       "posted_at": "2026-09-08",
       "checked_at": "2026-09-10",
       "posting_status": "open",
@@ -209,7 +401,7 @@
           "category": "seniority",
           "requirement": "Two years in client services",
           "status": "met",
-          "evidence": "Fictional JD: two years. Sample resume: Client Associate, 2022\u20132026."
+          "evidence": "Fictional JD: two years. Sample resume: Client Associate, 2022–2026."
         },
         {
           "category": "preferred",
@@ -238,13 +430,17 @@
       ],
       "id": "DEMO-103",
       "discovered_via": [
-        {"source": "Indeed (simulated)", "url": "https://example.com/demo-indeed/demo-103"}
+        {
+          "source": "Indeed (simulated)",
+          "url": "https://example.com/demo-indeed/demo-103"
+        }
       ],
       "title": "Client Onboarding Associate",
       "company": "Example Pacific",
       "url": "https://example.com/jobs/demo-103",
-      "location": "Remote \u2014 United States only",
-      "notes": "Fictional JD employment type: full-time. High documented fit does not remove the geographic and authorization blocker."
+      "location": "Remote — United States only",
+      "notes": "Fictional JD employment type: full-time. High documented fit does not remove the geographic and authorization blocker.",
+      "company_id": "EXAMPLE-PACIFIC"
     },
     {
       "salary": null,
@@ -256,13 +452,330 @@
       "hard_constraints": [],
       "id": "DEMO-104",
       "discovered_via": [
-        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-104"}
+        {
+          "source": "LinkedIn (simulated)",
+          "url": "https://example.com/demo-linkedin/demo-104"
+        }
       ],
       "title": "Customer Operations Associate",
       "company": "Example Unverified",
       "url": "https://example.com/jobs/demo-104",
       "location": "Unknown",
-      "notes": "Demonstrates an inaccessible discovery lead; details and open status have not been verified."
+      "notes": "Demonstrates an inaccessible discovery lead; details and open status have not been verified.",
+      "company_id": "EXAMPLE-UNVERIFIED"
+    },
+    {
+      "salary": "CAD 70,000–85,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-09",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Maintain customer records in HubSpot",
+          "status": "met",
+          "evidence": "Fictional JD: HubSpot record management. Sample resume, Client Associate: maintained HubSpot records."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Guide customers through software onboarding and handoffs",
+          "status": "met",
+          "evidence": "Fictional JD: guide onboarding and handoffs. Sample resume: onboarded 25 business customers and coordinated team handoffs."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Two years in customer services",
+          "status": "met",
+          "evidence": "Fictional JD: two years customer services. Sample resume: Client Associate, 2022–2026."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Excel reporting",
+          "status": "met",
+          "evidence": "Fictional JD: Excel preferred. Sample resume: produced weekly Excel service reports."
+        },
+        {
+          "category": "domain",
+          "requirement": "SaaS customer experience",
+          "status": "partial",
+          "evidence": "Fictional JD: SaaS experience. Sample resume: supported software customers at a service reseller, not directly at a SaaS vendor."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid work in Toronto",
+          "status": "met",
+          "evidence": "Fictional JD: Toronto hybrid. Sample user preferences: Toronto hybrid is acceptable."
+        },
+        {
+          "constraint": "Authorization to work in Canada",
+          "status": "met",
+          "evidence": "Fictional JD: Canadian work authorization. Sample user explicitly states authorization to work in Canada."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD: CAD 70,000–85,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-105",
+      "discovered_via": [
+        {
+          "source": "Example North careers (simulated)",
+          "url": "https://example.com/jobs/demo-105"
+        }
+      ],
+      "title": "Client Onboarding Coordinator",
+      "company": "Example North",
+      "url": "https://example.com/jobs/demo-105",
+      "location": "Toronto, Canada — hybrid",
+      "notes": "FICTIONAL full-time, Toronto hybrid opening. Same synthetic candidate; independent requisition. Used to demonstrate ranking and the maximum of three recommendations at one company.",
+      "company_id": "EXAMPLE-NORTH"
+    },
+    {
+      "salary": "CAD 70,000–85,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-09",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Maintain customer records in HubSpot",
+          "status": "met",
+          "evidence": "Fictional JD: HubSpot record management. Sample resume, Client Associate: maintained HubSpot records."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Maintain client records and coordinate account-service requests",
+          "status": "met",
+          "evidence": "Fictional JD: client records and requests. Sample resume: maintained HubSpot records and coordinated service handoffs."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Experience supporting an account lead",
+          "status": "met",
+          "evidence": "Fictional JD: support an account lead. Sample resume explicitly describes that scope."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Excel reporting",
+          "status": "met",
+          "evidence": "Fictional JD: Excel preferred. Sample resume: produced weekly Excel service reports."
+        },
+        {
+          "category": "domain",
+          "requirement": "Direct experience at a SaaS vendor",
+          "status": "unknown",
+          "evidence": "Fictional JD: SaaS vendor experience. Sample resume establishes software reseller support; direct SaaS employment is not established."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid work in Toronto",
+          "status": "met",
+          "evidence": "Fictional JD: Toronto hybrid. Sample user preferences: Toronto hybrid is acceptable."
+        },
+        {
+          "constraint": "Authorization to work in Canada",
+          "status": "met",
+          "evidence": "Fictional JD: Canadian work authorization. Sample user explicitly states authorization to work in Canada."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD: CAD 70,000–85,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-106",
+      "discovered_via": [
+        {
+          "source": "Example North careers (simulated)",
+          "url": "https://example.com/jobs/demo-106"
+        }
+      ],
+      "title": "Account Support Specialist",
+      "company": "Example North",
+      "url": "https://example.com/jobs/demo-106",
+      "location": "Toronto, Canada — hybrid",
+      "notes": "FICTIONAL full-time, Toronto hybrid opening. Same synthetic candidate; independent requisition. Used to demonstrate ranking and the maximum of three recommendations at one company.",
+      "company_id": "EXAMPLE-NORTH"
+    },
+    {
+      "salary": "CAD 70,000–85,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-09",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Maintain customer records in HubSpot",
+          "status": "met",
+          "evidence": "Fictional JD: HubSpot record management. Sample resume, Client Associate: maintained HubSpot records."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Create and deliver group customer training",
+          "status": "partial",
+          "evidence": "Fictional JD: group training. Sample resume: one-to-one onboarding; group instruction and training material creation not established."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Independently manage a customer portfolio",
+          "status": "partial",
+          "evidence": "Fictional JD: independent portfolio ownership. Sample resume: supports an account lead; end-to-end ownership not established."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Webinar production tools",
+          "status": "unknown",
+          "evidence": "Fictional JD: webinar tools preferred. Sample resume does not document webinar production."
+        },
+        {
+          "category": "domain",
+          "requirement": "SaaS customer experience",
+          "status": "partial",
+          "evidence": "Fictional JD: SaaS experience. Sample resume: supported software customers at a service reseller, not directly at a SaaS vendor."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid work in Toronto",
+          "status": "met",
+          "evidence": "Fictional JD: Toronto hybrid. Sample user preferences: Toronto hybrid is acceptable."
+        },
+        {
+          "constraint": "Authorization to work in Canada",
+          "status": "met",
+          "evidence": "Fictional JD: Canadian work authorization. Sample user explicitly states authorization to work in Canada."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD: CAD 70,000–85,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-107",
+      "discovered_via": [
+        {
+          "source": "Example North careers (simulated)",
+          "url": "https://example.com/jobs/demo-107"
+        }
+      ],
+      "title": "Client Enablement Associate",
+      "company": "Example North",
+      "url": "https://example.com/jobs/demo-107",
+      "location": "Toronto, Canada — hybrid",
+      "notes": "FICTIONAL full-time, Toronto hybrid opening. Same synthetic candidate; independent requisition. Used to demonstrate ranking and the maximum of three recommendations at one company.",
+      "company_id": "EXAMPLE-NORTH"
+    },
+    {
+      "salary": "CAD 65,000–75,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-08",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Excel operational reporting",
+          "status": "met",
+          "evidence": "Fictional JD: Excel reports. Sample resume, Client Associate: weekly Excel service reports."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Coordinate schedules and service handoffs",
+          "status": "met",
+          "evidence": "Fictional JD: scheduling and handoffs. Sample resume: coordinated a six-person team schedule."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Two years of dedicated operations responsibility",
+          "status": "partial",
+          "evidence": "Fictional JD: two years dedicated operations. Sample resume: operations duties alongside customer support; time allocation unconfirmed."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Basic SQL",
+          "status": "absent",
+          "evidence": "Fictional JD: SQL preferred. Sample user explicitly states they have not used SQL."
+        },
+        {
+          "category": "domain",
+          "requirement": "Logistics industry knowledge",
+          "status": "unknown",
+          "evidence": "Sample resume does not establish logistics experience."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid arrangement permitted",
+          "status": "met",
+          "evidence": "Fictional JD: two Toronto office days per week. Sample user accepts Toronto hybrid."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD minimum matches the sample user's CAD 65,000 annual base-salary floor."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-108",
+      "discovered_via": [
+        {
+          "source": "Example Freight careers (simulated)",
+          "url": "https://example.com/jobs/demo-108"
+        }
+      ],
+      "title": "Customer Service Scheduling Coordinator",
+      "company": "Example Freight",
+      "url": "https://example.com/jobs/demo-108",
+      "location": "Toronto, Canada — hybrid",
+      "notes": "FICTIONAL full-time hybrid job. Unlike DEMO-102, two on-site days per week are explicitly confirmed and fit the sample preference.",
+      "company_id": "EXAMPLE-FREIGHT"
+    },
+    {
+      "salary": null,
+      "posted_at": null,
+      "checked_at": "2026-09-10",
+      "posting_status": "closed",
+      "job_description_complete": false,
+      "requirements": [],
+      "hard_constraints": [],
+      "id": "DEMO-109",
+      "discovered_via": [
+        {
+          "source": "Example Unverified careers (simulated)",
+          "url": "https://example.com/jobs/demo-109"
+        }
+      ],
+      "title": "Customer Operations Coordinator — Closed",
+      "company": "Example Unverified",
+      "url": "https://example.com/jobs/demo-109",
+      "location": "Toronto, Canada",
+      "notes": "FICTIONAL direct page states applications closed on 2026-09-09. Retained solely to demonstrate exclusion; never recommend or present as an active vacancy.",
+      "company_id": "EXAMPLE-UNVERIFIED"
     }
   ]
 }

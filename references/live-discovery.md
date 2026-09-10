@@ -7,7 +7,8 @@
 3. Follow observed employer career links. For Greenhouse, Lever, and Ashby boards, optionally collect their published jobs using the script below. Keep normal web discovery running for other sources, including Workday and specialist boards.
 4. Inspect promising descriptions and the current application entry point, then confirm employer identity, role, location, restrictions, pay, and open status. Collection or a successful page request alone does not finish verification.
 5. Merge duplicate requisitions while preserving all observed discovery URLs. Compare professional evidence using the matching rubric. Keep uncertain leads separate and do not manufacture scores.
-6. Populate [report-format.md](report-format.md) JSON and render linked job, evidence, and source-coverage tables. Add keyword queries and a conclusion explaining where coverage ended. Return fewer than the requested count when appropriate, with the actual limitations.
+6. Research employer identity, size, workforce trend and latest reported layoffs using [company-research.md](company-research.md). Target 20 distinct relevant employers by default, not20 postings from a few employers; keep missing metadata unknown.
+7. Populate schema version 2 from [report-format.md](report-format.md). Render the company overview with up to 3 recommended jobs each first, then jobs grouped by employer, evidence and source coverage. Add keyword queries and a conclusion explaining any shortfall and where coverage ended.
 
 The skill runs these steps automatically during the user's request. It does not need separate permission for each ordinary read-only source. Background repetition needs a user-requested schedule. Applying, messaging, resume uploads, account creation, and paid services are separate actions.
 

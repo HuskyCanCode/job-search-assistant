@@ -1,4 +1,4 @@
 interface:
   display_name: "Job Search Assistant"
-  short_description: "Search job boards and compare openings with your resume"
-  default_prompt: "Use $job-search-assistant to automatically search LinkedIn, Indeed, employer career pages, and other relevant sources using my goals or resume, then return verified job links, fit evidence, application priorities, and source coverage in tables."
+  short_description: "Find companies, compare jobs, and research workforce trends"
+  default_prompt: "Use $job-search-assistant to search from my goals or resume, target 20 companies, and show linked company names, match ratings, size, workforce trends, latest reported layoffs, and up to three recommended jobs each before detailed jobs grouped by company."

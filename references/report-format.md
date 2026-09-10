@@ -2,15 +2,21 @@
 
 ## Finished report
 
-Begin with the date checked, the candidate's stated search scope, the resume/profile used, and the main recommendation. State that fit is a heuristic based on documented professional evidence, not a hiring probability. Include the limits that materially affect this search, such as inaccessible descriptions or unknown sponsorship.
+Begin with a short date/scope/profile note and explain that match ratings measure documented fit, not hiring probability or employer reputation. The first table must be a company overview; target 20 distinct relevant companies unless the user specifies another scope. Link each company name to its verified official website; if the website cannot be established, keep it unlinked and mark it unknown.
 
-Use these tables, splitting large tables when needed for readability:
+| Company / official website | Company match | Size / as of | Recent workforce trend | Latest publicly reported layoff | Up to 3 recommended jobs |
+| --- | --- | --- | --- | --- | --- |
+| Verified company link | Derived 0–100 or N/A; evidence/provisional status | Reported count, range or estimate with scope/source | Direction, actual comparison period and source | Date + announcement/effective label, source and limits | Direct links to actual qualifying job posts; fewer than 3 is valid |
+
+Twenty is a company target, not a promise of 60 vacancies. State the number of researched companies, the number with verified open jobs, the number with recommendable verified jobs and any shortfall against the last count. Employers represented only by inaccessible leads or confirmed-ineligible jobs do not fulfill the recommendation target. Do not repeat parents, aliases or city variants to inflate the count.
+
+After that overview, show jobs grouped under each company in the same order. Within each company separate open recommendations, confirmed eligibility blockers, unverified leads and inactive jobs. Use these tables, splitting wide tables if needed:
 
 | Priority | Role and direct job link | Company | Location / remote limits | Pay | Fit / coverage | Eligibility | Evidence, gaps, next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Application priority | [Verified title](https://example.com/replace-with-verified-post) | Employer | As stated | Currency + period, or unknown | Score or N/A + coverage | Met / unknown / unmet | Concise explanation |
 
-The example URL above is a format illustration only. Replace it with a link actually opened during the search. Record posted and checked dates in the job details table; an unknown posted date remains unknown. Include employment type and requisition ID in notes when available. State what search count means: unique verified open postings after deduplication, not raw search results.
+The example URL is only a format illustration. Replace it with an observed posting. Record posted and checked dates in job details; unknown posting dates stay unknown. Include employment type and requisition ID in notes. Company facts use their own as-of dates and sources, not the job's posting date. Follow [company-research.md](company-research.md) for size, headcount and layoff evidence.
 
 | Role group | Keywords / titles | Why relevant | Reusable query | Suggested source |
 | --- | --- | --- | --- | --- |
@@ -27,30 +33,55 @@ Provide evidence details for the strongest opportunities and any recommendation 
 Run from the skill repository root:
 
 ```sh
-python3 scripts/build_report.py private/search-input.json --output private/job-report.md --csv private/job-report.csv
+python3 scripts/build_report.py private/search-input.json --output private/job-report.md --csv private/job-report.csv --companies-csv private/company-report.csv
 ```
 
-`--output` writes Markdown (`--markdown` is an alias); `--csv` optionally writes a spreadsheet-friendly job summary. The helper uses Python 3.10+ and the standard library. It validates the input, computes the rubric, and renders evidence and job tables without network requests. The agent must verify facts and classify evidence before running it. It cannot determine whether an evidence string is truthful or a job is actually open.
+`--output` writes Markdown (`--markdown` is an alias); `--csv` writes an optional job summary, with company fields appended in version 2. `--companies-csv` writes a separate optional company summary and requires version 2. The helper uses Python 3.10+ and the standard library. It validates input, computes the rubric and renders tables without network requests. The agent must verify facts and classify evidence first. It cannot determine whether evidence is truthful or a job is actually open.
 
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
 The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
 
-## JSON schema version 1
+## JSON versions and company fields
+
+Use schema version 2 for all new company-first searches. Version 1 is retained for legacy job-only reports and does not require or invent company metadata. Both versions keep the job rubric unchanged.
 
 | Root field | Type | Meaning |
 | --- | --- | --- |
-| schema_version | integer, exactly 1 | Contract version |
+| schema_version | integer, 1 or 2 | Use 2 for company-first reports; 1 retains existing job-only behavior |
 | resume_provided | boolean | True only when readable resume evidence or a sufficiently detailed candidate profile was actually used |
 | search_summary | string, optional | Scope, profile source, and material assumptions; never include unnecessary personal details |
 | search_sources | array, optional for older inputs; include for every live search | Actual source/query checks, defined below; access failure is not zero vacancies |
 | jobs | array | Unique job records; an empty array is a valid zero-results report |
+| companies | array, required in version 2 | Unique employer records below; empty allowed for zero results |
+| company_target | integer 1–100, optional in version 2 | Default 20; target only, never manufacture records to satisfy it |
 
 If a detailed profile substitutes for a resume, make this explicit in `search_summary`. When `resume_provided` is false, do not create inferred personal requirement assessments; use an empty requirements array or unknown statuses. Personal fit is N/A.
+
+Each version 2 company has these required fields. Nested evidence links use `{label, url}` with a nonempty label and an absolute HTTP(S) URL; include the source publication date in the label or fact summary when known. Exact values and known claims require sources; source text remains researcher-supplied evidence, not automatic verification.
+
+| Company field | Type / meaning |
+| --- | --- |
+| id | Nonempty unique stable employer identifier |
+| name | Nonempty verified employer name; matches each linked job's `company` |
+| url | Official company HTTP(S) URL, or null if unverified; do not substitute a job board or guessed domain |
+| checked_at | Actual YYYY-MM-DD company research date |
+| size | `{value, as_of, scope, basis, sources}`: value is a count/range description or null; as_of is date or null; scope identifies entity/geography; basis is `reported`, `estimate`, `range`, or `unknown`; sources is an evidence-link array |
+| headcount_trend | `{direction, period_start, period_end, summary, sources}`: direction is `growing`, `stable`, `declining`, `mixed`, or `unknown`; dates are YYYY-MM-DD or null; summary explains comparable observations or why no conclusion is possible |
+| latest_layoff | `{status, event_date, date_type, summary, sources, searched_from, searched_through}`: status is `reported`, `none_found`, or `unknown`; dates are YYYY-MM-DD or null; date_type is `announcement`, `effective`, or `unspecified`; summary includes entity/geographic limits |
+
+Known size needs a non-null value, non-unknown basis and at least one source; unknown size uses null and unknown. A size as-of date can remain unknown if the source is undated; the company check date still records when it was read. A known headcount direction needs comparable dated evidence and sources; use `unknown` if endpoints are not comparable or available. Preserve a known period even when direction is unknown, but do not invent exact endpoints from approximate source periods. Start/end dates must both be supplied or both be null, ordered, and no later than the check date.
+
+`reported` layoffs require evidence sources; event_date can be null with unspecified date_type if the source does not establish an exact date. An exact date must identify announcement versus effective date. A future effective date is a scheduled event, not proof it already occurred. `none_found` requires the actual bounded search period, sources checked and a clear scope statement; event_date stays null and date_type is unspecified. `unknown` is for insufficient/blocked/unsearched evidence, not a claim that no layoffs happened. Preserve the attempted search period if known even when research is incomplete; otherwise use null dates. Neither condition becomes a fictitious last-layoff date.
+
+Do not supply a company score. The helper derives it from job evidence, and rejects unsupported fields. Duplicate company IDs, orphan job references and company-name mismatches are invalid. Company aliases and subsidiaries still need researcher deduplication; validation cannot decide legal identity.
+
+## Job fields
 
 | Job field | Type | Meaning |
 | --- | --- | --- |
 | id | nonempty string | Unique stable identifier, preferably original requisition ID |
+| company_id | nonempty string, required in version 2 | Reference to the parent company record; version 1 does not use this field |
 | title, company, location | nonempty strings | Verified values, or explicit Unknown where appropriate |
 | url | HTTP(S) URL | Direct posting URL; inaccessible leads may retain their discovered URL with unverified status |
 | salary | string or null | Stated range, currency, and period; null when unknown |
@@ -133,3 +164,11 @@ Application priority follows this order; the first applicable rule wins:
 | Same conditions, score below 40 | Low |
 
 Report all material issues even when another rule controls the label. For example, a provisional job with unknown sponsorship needs both evidence review and sponsorship clarification. The thresholds are heuristic workflow choices, not a validated employment prediction model.
+
+## Company recommendations and rating
+
+For each company, use the existing job priority order to select up to 3 open jobs with complete descriptions and no confirmed unmet hard constraints. Unknown constraints remain visible and require confirmation. Unverified, closed, incomplete-description and blocked jobs stay in the detailed company tables but cannot appear in the recommended top3 or contribute to its rating.
+
+The company match rating is the arithmetic mean of available job-fit scores among those recommendations. Show component job IDs, how many recommendations were scored, and their mean evidence coverage. No scored recommendations, including a search without a resume/profile, means N/A. Fewer than 3 scored recommendations, any provisional job score, unknown eligibility, or an unscored recommended job makes the company rating provisional. A small sample is a limitation, not a reason to invent additional jobs.
+
+Do not add an arbitrary bonus for company size, headcount growth or brand familiarity, and do not subtract an automatic layoff penalty. Those facts support the user's separate decision about the employer; the rating represents only the candidate's documented alignment with researched openings. It is not an assessment of company culture, financial health or the likelihood of being hired.

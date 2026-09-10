@@ -1,6 +1,6 @@
 # Job Search Assistant
 
-A reusable agent skill that automatically searches online job resources from a career goal or uploaded resume and returns a linked, evidence-based comparison table.
+A reusable agent skill that searches online jobs from a career goal or resume and organizes the results by company, with job recommendations and sourced company context.
 
 ## What it does
 
@@ -11,9 +11,11 @@ A reusable agent skill that automatically searches online job resources from a c
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
 - Reads a resume or detailed professional profile using available host tools.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
+- Targets 20 distinct relevant companies by default, linking each company name to its official website and showing up to three recommended jobs before the detailed tables for that company.
+- Adds a company match rating, employee size, recent workforce trend, and the latest publicly reported layoff date with sources and clear unknowns.
 - Produces Markdown tables and optional CSV exports, with a source coverage table showing actual searches and access limitations.
 
-The score measures documented fit. It does not predict hiring probability. The report explains what is known, what needs clarification, and where applying is most worthwhile.
+Job scores measure documented fit. The company rating averages the available fit scores among its up to three recommended verified openings. These are not employer reputation ratings or hiring probabilities. Size, headcount trend, and layoffs are separate context and do not automatically change the score.
 
 ## Use the skill
 
@@ -21,13 +23,17 @@ This repository's root is the skill folder. Place it in your agent's supported s
 
 Invoke the skill and attach a resume to the conversation if you want resume-based matching:
 
-> Use $job-search-assistant. Find customer success or operations roles in Toronto, hybrid or remote within Canada. Use my attached resume, suggest related titles and search keywords, and return 10 verified job posts in a table with fit scores, evidence, gaps, and application priorities.
+> Use $job-search-assistant. Use my resume to find on-site jobs in the United States; I am open to relocation. Target 20 companies. First show linked company names, match ratings, size, employee growth or decline, the latest reported layoff, and each company's top three recommended jobs. Then show the detailed jobs grouped by company.
 
 You can also specify sources:
 
 > Use $job-search-assistant. Search LinkedIn, Indeed, Wellfound, relevant remote boards, and employer career sites for junior frontend or software support jobs in New York. Include related job titles, deduplicate results, and show where each job was found and which sources were limited.
 
 You do not have to name every board: the skill chooses sources based on the role and country. A request to find jobs runs the search in the current conversation. An older resume or missing recent projects changes the recommended level and evidence confidence; the skill still searches for suitable openings. Background searches require a separately requested schedule.
+
+The target is 20 **companies**, not 20 links. Fewer than three suitable roles at a company is a valid result. If the search cannot substantiate 20 relevant employers, it reports the actual count and coverage limits rather than filling the table with duplicates, closed jobs or unsupported matches. A user-requested smaller scope overrides the default.
+
+Company “population trend” means employee/headcount growth or decline by default. Trends use comparable dated observations, usually over the latest available 12 months. Layoff entries distinguish announcement and effective dates; “no report found” describes only the sources and period checked, not proof that layoffs never occurred. See [company research guidance](references/company-research.md).
 
 Without a resume:
 
@@ -53,10 +59,10 @@ The collector requires Python 3.10+ and network access, with no third-party pack
 
 ## Try the report generator
 
-The included Python helper calculates scores from structured assessments and generates job tables. Python 3.10+ is sufficient; no third-party packages, API key, or network connection are needed for this helper.
+The included Python helper calculates scores from structured assessments and generates company-first tables from schema version 2. Version 1 job-only inputs continue to work. Python 3.10+ is sufficient; no third-party packages, API key, or network connection are needed for this helper.
 
 ```sh
-python3 scripts/build_report.py examples/sample-input.json --output reports/sample-report.md --csv reports/sample-report.csv
+python3 scripts/build_report.py examples/sample-input.json --output reports/sample-report.md --csv reports/sample-report.csv --companies-csv reports/sample-companies.csv
 python3 -m unittest discover -s tests -v
 ```
 
@@ -68,7 +74,8 @@ The [sample report](examples/sample-report.md) uses fictional companies, candida
 
 | Table | Purpose |
 | --- | --- |
-| Job shortlist | Compare direct posting links, location, compensation, dates, fit, eligibility, and next action |
+| Company overview — first | Linked company names, derived match ratings, size, workforce trends, reported layoffs and up to three recommended job links |
+| Jobs by company — second | Direct posting links, location, compensation, dates, job fit, eligibility and next action, grouped under each employer |
 | Search keywords | Reuse grouped title, function, skill, industry, and location queries |
 | Requirement evidence | See exactly which resume evidence supports each match and which details are unknown |
 | Sources checked | See the actual source, method/query, date, observed results, verified count, and access limits |
