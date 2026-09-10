@@ -1,0 +1,19 @@
+# Candidate material and generated search sessions belong here, not in Git.
+private/
+reports/
+work/
+uploads/
+resumes/
+.env
+.env.*
+!.env.example
+*.pdf
+*.docx
+*.doc
+*.rtf
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+coverage.xml
+.coverage

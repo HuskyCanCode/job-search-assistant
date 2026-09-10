@@ -1,0 +1,4 @@
+interface:
+  display_name: "Job Search Assistant"
+  short_description: "Find jobs, expand searches, and compare resume fit"
+  default_prompt: "Use $job-search-assistant to find relevant jobs from my goals or resume and create a linked table with search keywords, fit evidence, and application priorities."

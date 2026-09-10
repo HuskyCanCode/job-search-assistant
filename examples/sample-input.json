@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "resume_provided": true,
+  "search_summary": "FICTIONAL DEMONSTRATION. Candidate and job details are synthetic. example.com links are placeholders, not live job vacancies. Target: Toronto hybrid or remote within Canada; full-time; CAD 65,000+ base salary per year.",
+  "jobs": [
+    {
+      "salary": "CAD 70,000\u201385,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-08",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Maintain customer records in HubSpot",
+          "status": "met",
+          "evidence": "Fictional JD: HubSpot record management. Sample resume, Client Associate: maintained HubSpot records."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Onboard business customers",
+          "status": "met",
+          "evidence": "Fictional JD: own onboarding. Sample resume, Client Associate: onboarded 25 business customers."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Independently manage a customer portfolio",
+          "status": "partial",
+          "evidence": "Fictional JD: independent portfolio ownership. Sample resume: supports an account lead; end-to-end ownership not established."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Excel reporting",
+          "status": "met",
+          "evidence": "Fictional JD: Excel preferred. Sample resume: produced weekly Excel service reports."
+        },
+        {
+          "category": "domain",
+          "requirement": "SaaS customer experience",
+          "status": "partial",
+          "evidence": "Fictional JD: SaaS experience. Sample resume: supported software customers at a service reseller, not directly at a SaaS vendor."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid work in Toronto",
+          "status": "met",
+          "evidence": "Fictional JD: Toronto hybrid. Sample user preferences: Toronto hybrid is acceptable."
+        },
+        {
+          "constraint": "Authorization to work in Canada",
+          "status": "met",
+          "evidence": "Fictional JD: Canadian work authorization. Sample user explicitly states authorization to work in Canada."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD: CAD 70,000\u201385,000 annual base salary. Sample user floor: CAD 65,000 annual base salary."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-101",
+      "title": "Customer Success Specialist",
+      "company": "Example North",
+      "url": "https://example.com/jobs/demo-101",
+      "location": "Toronto, Canada \u2014 hybrid",
+      "notes": "Fictional JD employment type: full-time. Emphasize onboarding results and explain the scope of account ownership truthfully."
+    },
+    {
+      "salary": "CAD 65,000\u201375,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-08",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Excel operational reporting",
+          "status": "met",
+          "evidence": "Fictional JD: Excel reports. Sample resume, Client Associate: weekly Excel service reports."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Coordinate schedules and service handoffs",
+          "status": "met",
+          "evidence": "Fictional JD: scheduling and handoffs. Sample resume: coordinated a six-person team schedule."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Two years of dedicated operations responsibility",
+          "status": "partial",
+          "evidence": "Fictional JD: two years dedicated operations. Sample resume: operations duties alongside customer support; time allocation unconfirmed."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Basic SQL",
+          "status": "absent",
+          "evidence": "Fictional JD: SQL preferred. Sample user explicitly states they have not used SQL."
+        },
+        {
+          "category": "domain",
+          "requirement": "Logistics industry knowledge",
+          "status": "unknown",
+          "evidence": "Sample resume does not establish logistics experience."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "Hybrid arrangement permitted",
+          "status": "unknown",
+          "evidence": "Fictional JD does not specify required on-site days. Sample user requires hybrid or remote."
+        },
+        {
+          "constraint": "CAD 65,000 minimum annual base pay",
+          "status": "met",
+          "evidence": "Fictional JD minimum matches the sample user's CAD 65,000 annual base-salary floor."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-102",
+      "title": "Operations Coordinator",
+      "company": "Example Freight",
+      "url": "https://example.com/jobs/demo-102",
+      "location": "Toronto, Canada \u2014 on-site schedule unclear",
+      "notes": "Fictional JD employment type: full-time. Clarify on-site expectations; prepare an example of coordinating handoffs."
+    },
+    {
+      "salary": "USD 60,000\u201375,000 base salary per year; employer-stated in fictional JD",
+      "posted_at": "2026-09-08",
+      "checked_at": "2026-09-10",
+      "posting_status": "open",
+      "job_description_complete": true,
+      "requirements": [
+        {
+          "category": "required_skills",
+          "requirement": "Maintain HubSpot client records",
+          "status": "met",
+          "evidence": "Fictional JD: HubSpot required. Sample resume: maintained HubSpot client records."
+        },
+        {
+          "category": "responsibilities",
+          "requirement": "Onboard clients and prepare reports",
+          "status": "met",
+          "evidence": "Fictional JD: onboarding and reports. Sample resume: onboarded clients and prepared weekly reports."
+        },
+        {
+          "category": "seniority",
+          "requirement": "Two years in client services",
+          "status": "met",
+          "evidence": "Fictional JD: two years. Sample resume: Client Associate, 2022\u20132026."
+        },
+        {
+          "category": "preferred",
+          "requirement": "Team scheduling",
+          "status": "met",
+          "evidence": "Fictional JD: scheduling preferred. Sample resume: coordinated a six-person schedule."
+        },
+        {
+          "category": "domain",
+          "requirement": "Software customer support",
+          "status": "met",
+          "evidence": "Fictional JD: software customer support. Sample resume: served software customers."
+        }
+      ],
+      "hard_constraints": [
+        {
+          "constraint": "US work authorization and US residence",
+          "status": "unmet",
+          "evidence": "Fictional JD: US-only employment, no sponsorship. Sample user explicitly states they live in Canada and do not have US work authorization."
+        },
+        {
+          "constraint": "Full-time employment",
+          "status": "met",
+          "evidence": "Fictional JD explicitly offers full-time employment. Sample user requires full-time work."
+        }
+      ],
+      "id": "DEMO-103",
+      "title": "Client Onboarding Associate",
+      "company": "Example Pacific",
+      "url": "https://example.com/jobs/demo-103",
+      "location": "Remote \u2014 United States only",
+      "notes": "Fictional JD employment type: full-time. High documented fit does not remove the geographic and authorization blocker."
+    },
+    {
+      "salary": null,
+      "posted_at": null,
+      "checked_at": "2026-09-10",
+      "posting_status": "unverified",
+      "job_description_complete": false,
+      "requirements": [],
+      "hard_constraints": [],
+      "id": "DEMO-104",
+      "title": "Customer Operations Associate",
+      "company": "Example Unverified",
+      "url": "https://example.com/jobs/demo-104",
+      "location": "Unknown",
+      "notes": "Demonstrates an inaccessible discovery lead; details and open status have not been verified."
+    }
+  ]
+}
