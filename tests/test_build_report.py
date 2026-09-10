@@ -147,6 +147,65 @@ class ScoringTests(unittest.TestCase):
 
 
 class ValidationAndExportTests(unittest.TestCase):
+    def source(self, **changes):
+        value = {"source": "Example board", "url": "https://example.com/jobs", "method": "web_search",
+                 "query": 'site:example.com "support"', "status": "searched", "checked_at": "2026-09-10",
+                 "results_seen": 3, "verified_open": 1, "notes": "Three results inspected; one verified on employer site."}
+        value.update(changes)
+        return value
+
+    def test_source_coverage_distinguishes_access_failure_from_zero_matches(self):
+        data = sample()
+        data["search_sources"] = [self.source(results_seen=0, verified_open=0),
+                                  self.source(status="blocked", results_seen=None, verified_open=0, notes="Sign-in required.")]
+        report.validate(data)
+        rendered = report.render_markdown(data)
+        self.assertIn("## Sources checked", rendered)
+        self.assertIn("| 0 | 0 |", rendered)
+        self.assertIn("| Unknown | 0 |", rendered)
+        self.assertIn("do not sum these counts", rendered)
+        self.assertIn("Unique job records in this report: 1", rendered)
+
+    def test_source_counts_status_and_metadata_must_be_consistent(self):
+        cases = [{"results_seen": -1}, {"results_seen": True}, {"results_seen": None},
+                 {"verified_open": 4}, {"verified_open": False}, {"method": "scrape_private_api"},
+                 {"status": "all_jobs_searched"}, {"checked_at": "2026-02-30"}, {"url": "file:///etc/passwd"},
+                 {"status": "blocked", "results_seen": 0, "verified_open": 0},
+                 {"status": "skipped", "results_seen": None, "verified_open": 1},
+                 {"status": "limited", "notes": ""}]
+        for changes in cases:
+            with self.subTest(changes=changes):
+                data = sample()
+                data["search_sources"] = [self.source(**changes)]
+                with self.assertRaises(report.ValidationError):
+                    report.validate(data)
+
+    def test_discovery_links_survive_deduplication_and_escape_exports(self):
+        data = sample()
+        data["jobs"][0]["discovered_via"] = [
+            {"source": "=Formula|<tag>", "url": "https://example.com/board/a(b)"},
+            {"source": "Employer", "url": "https://example.com/jobs/original"}]
+        data["search_sources"] = [self.source(source="<bad>|[link](evil)", query="find | jobs\n<script>")]
+        report.validate(data)
+        rendered = report.render_markdown(data)
+        self.assertIn("Found via:", rendered)
+        self.assertIn("a%28b%29", rendered)
+        self.assertNotIn("<script>", rendered)
+        self.assertNotIn("<tag>", rendered)
+        self.assertNotIn("[link](evil)", rendered)
+        row = next(csv.DictReader(io.StringIO(report.render_csv(data))))
+        self.assertTrue(row["discovery_sources"].startswith("'="))
+        self.assertEqual(row["discovery_urls"], "https://example.com/board/a(b); https://example.com/jobs/original")
+        data["jobs"][0]["discovered_via"][0]["url"] = "javascript:evil"
+        with self.assertRaises(report.ValidationError):
+            report.validate(data)
+
+    def test_source_extensions_are_optional_for_existing_inputs(self):
+        data = sample()
+        report.validate(data)
+        self.assertNotIn("## Sources checked", report.render_markdown(data))
+        self.assertEqual(next(csv.DictReader(io.StringIO(report.render_csv(data))))["discovery_sources"], "")
+
     def test_reject_malformed_url_dates_types_and_claims(self):
         changes = [("url", "javascript:alert(1)"), ("url", "https://example.com/a b"),
                    ("url", "https://user:pass@example.com"), ("url", "https://example.com:bad/a"),

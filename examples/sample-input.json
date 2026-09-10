@@ -2,6 +2,52 @@
   "schema_version": 1,
   "resume_provided": true,
   "search_summary": "FICTIONAL DEMONSTRATION. Candidate and job details are synthetic. example.com links are placeholders, not live job vacancies. Target: Toronto hybrid or remote within Canada; full-time; CAD 65,000+ base salary per year.",
+  "search_sources": [
+    {
+      "source": "LinkedIn (simulated)",
+      "url": "https://example.com/demo-linkedin-search",
+      "method": "web_search",
+      "query": "SIMULATED: site:linkedin.com/jobs/view customer success Toronto",
+      "status": "limited",
+      "checked_at": "2026-09-10",
+      "results_seen": 3,
+      "verified_open": 2,
+      "notes": "Fictional indexed-only coverage: DEMO-101 and DEMO-102 verified in the scenario; DEMO-104 remains inaccessible. No real search was run."
+    },
+    {
+      "source": "Indeed (simulated platform attempt)",
+      "url": "https://example.com/demo-indeed-search",
+      "method": "platform_search",
+      "query": "SIMULATED: customer operations, Toronto",
+      "status": "blocked",
+      "checked_at": "2026-09-10",
+      "results_seen": null,
+      "verified_open": 0,
+      "notes": "Fictional access failure, not evidence of zero vacancies."
+    },
+    {
+      "source": "Indeed (simulated indexed fallback)",
+      "url": "https://example.com/demo-indeed-indexed",
+      "method": "web_search",
+      "query": "SIMULATED: site:indeed.com client onboarding Canada",
+      "status": "limited",
+      "checked_at": "2026-09-10",
+      "results_seen": 2,
+      "verified_open": 2,
+      "notes": "Fictional results: DEMO-102 overlaps another source; DEMO-103 is open in the scenario but has a candidate eligibility blocker."
+    },
+    {
+      "source": "Example North careers (simulated)",
+      "url": "https://example.com/jobs/demo-101",
+      "method": "employer_site",
+      "query": "SIMULATED: inspect DEMO-101 description and application availability",
+      "status": "searched",
+      "checked_at": "2026-09-10",
+      "results_seen": 1,
+      "verified_open": 1,
+      "notes": "Fictional verification step. All source counts in this example are synthetic and overlap; do not sum them as unique jobs."
+    }
+  ],
   "jobs": [
     {
       "salary": "CAD 70,000\u201385,000 base salary per year; employer-stated in fictional JD",
@@ -64,6 +110,10 @@
         }
       ],
       "id": "DEMO-101",
+      "discovered_via": [
+        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-101"},
+        {"source": "Example North careers (simulated)", "url": "https://example.com/jobs/demo-101"}
+      ],
       "title": "Customer Success Specialist",
       "company": "Example North",
       "url": "https://example.com/jobs/demo-101",
@@ -126,6 +176,10 @@
         }
       ],
       "id": "DEMO-102",
+      "discovered_via": [
+        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-102"},
+        {"source": "Indeed (simulated)", "url": "https://example.com/demo-indeed/demo-102"}
+      ],
       "title": "Operations Coordinator",
       "company": "Example Freight",
       "url": "https://example.com/jobs/demo-102",
@@ -183,6 +237,9 @@
         }
       ],
       "id": "DEMO-103",
+      "discovered_via": [
+        {"source": "Indeed (simulated)", "url": "https://example.com/demo-indeed/demo-103"}
+      ],
       "title": "Client Onboarding Associate",
       "company": "Example Pacific",
       "url": "https://example.com/jobs/demo-103",
@@ -198,6 +255,9 @@
       "requirements": [],
       "hard_constraints": [],
       "id": "DEMO-104",
+      "discovered_via": [
+        {"source": "LinkedIn (simulated)", "url": "https://example.com/demo-linkedin/demo-104"}
+      ],
       "title": "Customer Operations Associate",
       "company": "Example Unverified",
       "url": "https://example.com/jobs/demo-104",

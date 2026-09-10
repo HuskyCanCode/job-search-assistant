@@ -34,7 +34,7 @@ python3 scripts/build_report.py private/search-input.json --output private/job-r
 
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
-Use the helper for the comparison portion. Add the keyword/query table and search log above to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
+The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
 
 ## JSON schema version 1
 
@@ -43,6 +43,7 @@ Use the helper for the comparison portion. Add the keyword/query table and searc
 | schema_version | integer, exactly 1 | Contract version |
 | resume_provided | boolean | True only when readable resume evidence or a sufficiently detailed candidate profile was actually used |
 | search_summary | string, optional | Scope, profile source, and material assumptions; never include unnecessary personal details |
+| search_sources | array, optional for older inputs; include for every live search | Actual source/query checks, defined below; access failure is not zero vacancies |
 | jobs | array | Unique job records; an empty array is a valid zero-results report |
 
 If a detailed profile substitutes for a resume, make this explicit in `search_summary`. When `resume_provided` is false, do not create inferred personal requirement assessments; use an empty requirements array or unknown statuses. Personal fit is N/A.
@@ -61,6 +62,31 @@ If a detailed profile substitutes for a resume, make this explicit in `search_su
 | hard_constraints | array | Applicable material constraints, defined below; empty means eligibility was not established |
 | not_applicable_categories | object, optional | Category key to substantive exclusion reason; allowed only with complete JD, with no requirements in the excluded category |
 | notes | string, optional | Employment type, requisition/source detail, limitations, or candidate next-step context |
+| discovered_via | array, optional | Observed discovery links as `{source, url}` objects; retain all distinct origins when merging duplicate postings |
+
+Each discovery source has a nonempty `source` name and an absolute HTTP(S) `url`. Keep the employer's preferred original posting as the job `url`, and observed board or search-result links in `discovered_via`. This is provenance, not proof of verification. The CSV appends `discovery_sources` and `discovery_urls` columns; the source coverage ledger is in Markdown.
+
+## Source coverage fields
+
+Each `search_sources` entry represents one actual source/query/method check. Multiple queries or a platform attempt followed by indexed fallback can have separate entries. The fields are required for each entry; the array itself stays optional for older input files and comparisons without discovery.
+
+| Field | Type / meaning |
+| --- | --- |
+| source | Nonempty source name, including employer/board where relevant |
+| url | Observed HTTP(S) search URL, source entry point, or public API request URL |
+| method | `platform_search`, `web_search`, `employer_site`, or `public_api` |
+| query | Exact query/filter description or API request; for skipped sources describe the intended query |
+| status | `searched`, `limited`, `blocked`, or `skipped`, as defined in the search strategy |
+| checked_at | Actual YYYY-MM-DD check date; include finer timestamps in notes if useful |
+| results_seen | Nonnegative integer count of candidate records actually inspected; `null` for blocked/skipped checks |
+| verified_open | Nonnegative integer count of those candidates subsequently verified open; at most results_seen when known |
+| notes | Limits, filter details, pages inspected, and context; must be nonempty for limited/blocked/skipped checks |
+
+`searched` and `limited` checks require an observed count (possibly zero). `blocked` and `skipped` require `results_seen: null` and `verified_open: 0`; explain why availability remains unknown. A successful query returning no candidates is different from a blocked source. Indexed-only board discovery is `web_search` with `limited` coverage.
+
+Counts may overlap across checks because one requisition can appear on several boards. Do not sum them into a unique job count. The helper separately counts unique job records supplied and those marked open, including any with candidate eligibility blockers. The researcher must deduplicate requisitions before rendering; validation only prevents duplicate record IDs. Source counts may include inspected jobs not retained in the shortlist. A collector's retrieved count is not its verified-open count; see [live-discovery.md](live-discovery.md).
+
+## Evidence fields
 
 Each requirement has four fields:
 

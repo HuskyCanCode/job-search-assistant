@@ -88,13 +88,40 @@ def web_url(value, path):
 
 
 def validate(data):
-    fields(data, ("schema_version", "resume_provided", "jobs"), ("search_summary",), "input")
+    fields(data, ("schema_version", "resume_provided", "jobs"), ("search_summary", "search_sources"), "input")
     if type(data["schema_version"]) is not int or data["schema_version"] != 1:
         fail("schema_version", "must be integer 1")
     if type(data["resume_provided"]) is not bool:
         fail("resume_provided", "must be a boolean")
     if "search_summary" in data:
         string(data["search_summary"], "search_summary", empty=True)
+    sources = data.get("search_sources", [])
+    if not isinstance(sources, list) or len(sources) > 1000:
+        fail("search_sources", "expected an array with at most 1,000 source checks")
+    for index, source in enumerate(sources):
+        path = f"search_sources[{index}]"
+        fields(source, ("source", "url", "method", "query", "status", "checked_at",
+                        "results_seen", "verified_open", "notes"), (), path)
+        for key in ("source", "query"):
+            string(source[key], f"{path}.{key}")
+        string(source["notes"], path + ".notes", empty=source["status"] == "searched")
+        web_url(source["url"], path + ".url")
+        calendar_date(source["checked_at"], path + ".checked_at")
+        enum(source["method"], ("platform_search", "web_search", "employer_site", "public_api"), path + ".method")
+        enum(source["status"], ("searched", "limited", "blocked", "skipped"), path + ".status")
+        for key in ("results_seen", "verified_open"):
+            value = source[key]
+            if key == "results_seen" and value is None:
+                continue
+            if type(value) is not int or value < 0:
+                fail(f"{path}.{key}", "expected a nonnegative integer" + (" or null" if key == "results_seen" else ""))
+        if source["results_seen"] is not None and source["verified_open"] > source["results_seen"]:
+            fail(path + ".verified_open", "cannot exceed results_seen")
+        if source["status"] in ("blocked", "skipped"):
+            if source["results_seen"] is not None or source["verified_open"] != 0:
+                fail(path, "blocked/skipped checks require results_seen null and verified_open 0")
+        elif source["results_seen"] is None:
+            fail(path + ".results_seen", "searched/limited checks require the count actually observed")
     if not isinstance(data["jobs"], list) or len(data["jobs"]) > 1000:
         fail("jobs", "expected an array with at most 1,000 jobs")
     seen = set()
@@ -102,13 +129,21 @@ def validate(data):
                 "checked_at", "posting_status", "job_description_complete", "requirements", "hard_constraints")
     for index, job in enumerate(data["jobs"]):
         path = f"jobs[{index}]"
-        fields(job, required, ("notes", "not_applicable_categories"), path)
+        fields(job, required, ("notes", "not_applicable_categories", "discovered_via"), path)
         for key in ("id", "title", "company", "location"):
             string(job[key], f"{path}.{key}")
         if job["id"] in seen:
             fail(path + ".id", "duplicate job identifier")
         seen.add(job["id"])
         web_url(job["url"], path + ".url")
+        discovered = job.get("discovered_via", [])
+        if not isinstance(discovered, list) or len(discovered) > 100:
+            fail(path + ".discovered_via", "expected an array with at most 100 discovery sources")
+        for source_index, source in enumerate(discovered):
+            source_path = f"{path}.discovered_via[{source_index}]"
+            fields(source, ("source", "url"), (), source_path)
+            string(source["source"], source_path + ".source")
+            web_url(source["url"], source_path + ".url")
         if job["salary"] is not None:
             string(job["salary"], path + ".salary")
         calendar_date(job["posted_at"], path + ".posted_at", nullable=True)
@@ -266,6 +301,21 @@ def render_markdown(data):
              "Posting status and dates were supplied by the researcher. This offline helper does not verify links or read resumes.", ""]
     if data.get("search_summary"):
         lines.extend([md(data["search_summary"]), ""])
+    if data.get("search_sources"):
+        open_count = sum(job["posting_status"] == "open" for job in data["jobs"])
+        lines.extend(["## Sources checked", "",
+                      f"Unique job records in this report: {len(data['jobs'])}; recorded open: {open_count} (including any eligibility blockers). "
+                      "Source counts describe results actually inspected, not all vacancies on a platform. "
+                      "The same job may appear in several source checks; do not sum these counts as unique jobs. "
+                      "Blocked or skipped sources have unknown availability, not zero vacancies.", "",
+                      "| Source / method | Query or API request | Status | Checked | Results seen | Verified open | Notes |",
+                      "| --- | --- | --- | --- | ---: | ---: | --- |"])
+        for source in data["search_sources"]:
+            link = f"[{md(source['source'])}](<{markdown_url(source['url'])}>)<br>{md(source['method'])}"
+            cells = [link] + [md(value) for value in (source["query"], source["status"], source["checked_at"],
+                     source["results_seen"] if source["results_seen"] is not None else "Unknown", source["verified_open"], source["notes"])]
+            lines.append("| " + " | ".join(cells) + " |")
+        lines.append("")
     groups = (("Open postings", "open"), ("Blocked postings", "blocked"),
               ("Unverified discovery leads", "unverified"), ("Inactive postings", "closed"))
     if not data["jobs"]:
@@ -279,6 +329,8 @@ def render_markdown(data):
         for job in jobs:
             result = assess(job, data["resume_provided"])
             link = f"[{md(job['title'])}](<{markdown_url(job['url'])}>)<br>{md(job['company'])}"
+            if job.get("discovered_via"):
+                link += "<br>Found via: " + md(", ".join(dict.fromkeys(source["source"] for source in job["discovered_via"])))
             gaps = result["constraint_issues"] + result["gaps"] + ["Unknown: " + item for item in result["unknowns"]]
             cells = [link, md(score_text(result)),
                      md(f"{result['confidence']} / {result['coverage']:.1f}%"), md(result["eligibility"]), md(result["priority"]),
@@ -305,6 +357,11 @@ def render_markdown(data):
                                                                job["posted_at"] or "Unknown", job["checked_at"], job["posting_status"])) + " |", ""])
         if job.get("notes"):
             lines.extend(["Researcher notes: " + md(job["notes"]), ""])
+        if job.get("discovered_via"):
+            lines.extend(["| Discovery source | Observed link |", "| --- | --- |"])
+            for source in job["discovered_via"]:
+                lines.append(f"| {md(source['source'])} | [Discovery link](<{markdown_url(source['url'])}>) |")
+            lines.append("")
         if not data["resume_provided"]:
             lines.extend(["No resume/profile supplied: personal-fit evidence is not assessed.", ""])
         lines.extend(["| Category | JD requirement | Assessment | JD / résumé evidence |", "| --- | --- | --- | --- |"])
@@ -339,14 +396,17 @@ def render_csv(data):
     writer = csv.writer(output)
     writer.writerow(("id", "title", "company", "url", "location", "salary", "posted_at", "checked_at", "posting_status",
                      "fit_score", "assessment", "confidence", "evidence_coverage_percent", "eligibility", "application_priority",
-                     "strengths", "gaps", "unknowns", "eligibility_details", "next_action", "notes"))
+                     "strengths", "gaps", "unknowns", "eligibility_details", "next_action", "notes",
+                     "discovery_sources", "discovery_urls"))
     for job in ordered_jobs(data):
         result = assess(job, data["resume_provided"])
         values = [job[key] for key in ("id", "title", "company", "url", "location", "salary", "posted_at", "checked_at", "posting_status")]
         values += [result["score"] if result["score"] is not None else "N/A", result["assessment"], result["confidence"],
                    result["coverage"], result["eligibility"], result["priority"], "; ".join(result["strengths"]),
                    "; ".join(result["gaps"]), "; ".join(result["unknowns"]), "; ".join(result["constraint_issues"]),
-                   result["next_action"], job.get("notes", "")]
+                   result["next_action"], job.get("notes", ""),
+                   "; ".join(source["source"] for source in job.get("discovered_via", [])),
+                   "; ".join(source["url"] for source in job.get("discovered_via", []))]
         writer.writerow([csv_safe(value) for value in values])
     return output.getvalue()
 

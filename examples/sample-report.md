@@ -6,24 +6,35 @@ Posting status and dates were supplied by the researcher. This offline helper do
 
 FICTIONAL DEMONSTRATION\. Candidate and job details are synthetic\. example\.com links are placeholders, not live job vacancies\. Target: Toronto hybrid or remote within Canada; full\-time; CAD 65,000\+ base salary per year\.
 
+## Sources checked
+
+Unique job records in this report: 4; recorded open: 3 (including any eligibility blockers). Source counts describe results actually inspected, not all vacancies on a platform. The same job may appear in several source checks; do not sum these counts as unique jobs. Blocked or skipped sources have unknown availability, not zero vacancies.
+
+| Source / method | Query or API request | Status | Checked | Results seen | Verified open | Notes |
+| --- | --- | --- | --- | ---: | ---: | --- |
+| [LinkedIn \(simulated\)](<https://example.com/demo-linkedin-search>)<br>web\_search | SIMULATED: site:linkedin\.com/jobs/view customer success Toronto | limited | 2026\-09\-10 | 3 | 2 | Fictional indexed\-only coverage: DEMO\-101 and DEMO\-102 verified in the scenario; DEMO\-104 remains inaccessible\. No real search was run\. |
+| [Indeed \(simulated platform attempt\)](<https://example.com/demo-indeed-search>)<br>platform\_search | SIMULATED: customer operations, Toronto | blocked | 2026\-09\-10 | Unknown | 0 | Fictional access failure, not evidence of zero vacancies\. |
+| [Indeed \(simulated indexed fallback\)](<https://example.com/demo-indeed-indexed>)<br>web\_search | SIMULATED: site:indeed\.com client onboarding Canada | limited | 2026\-09\-10 | 2 | 2 | Fictional results: DEMO\-102 overlaps another source; DEMO\-103 is open in the scenario but has a candidate eligibility blocker\. |
+| [Example North careers \(simulated\)](<https://example.com/jobs/demo-101>)<br>employer\_site | SIMULATED: inspect DEMO\-101 description and application availability | searched | 2026\-09\-10 | 1 | 1 | Fictional verification step\. All source counts in this example are synthetic and overlap; do not sum them as unique jobs\. |
+
 ## Open postings
 
 | Role / company | Fit | Confidence / coverage | Eligibility | Priority | Strengths | Gaps / unknowns | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Customer Success Specialist](<https://example.com/jobs/demo-101>)<br>Example North | 85\.0/100 | High / 100\.0% | Met | High | Maintain customer records in HubSpot; Onboard business customers; Excel reporting | Partial: Independently manage a customer portfolio; Partial: SaaS customer experience | Tailor truthful accomplishments to the strongest relevant requirements\. |
-| [Operations Coordinator](<https://example.com/jobs/demo-102>)<br>Example Freight | 70\.0/100 | High / 90\.0% | Unknown | Clarify eligibility | Excel operational reporting; Coordinate schedules and service handoffs | Eligibility unknown: Hybrid arrangement permitted; Partial: Two years of dedicated operations responsibility; Absent: Basic SQL; Unknown: Logistics industry knowledge | Confirm unknown or unassessed hard constraints before prioritizing\. |
+| [Customer Success Specialist](<https://example.com/jobs/demo-101>)<br>Example North<br>Found via: LinkedIn \(simulated\), Example North careers \(simulated\) | 85\.0/100 | High / 100\.0% | Met | High | Maintain customer records in HubSpot; Onboard business customers; Excel reporting | Partial: Independently manage a customer portfolio; Partial: SaaS customer experience | Tailor truthful accomplishments to the strongest relevant requirements\. |
+| [Operations Coordinator](<https://example.com/jobs/demo-102>)<br>Example Freight<br>Found via: LinkedIn \(simulated\), Indeed \(simulated\) | 70\.0/100 | High / 90\.0% | Unknown | Clarify eligibility | Excel operational reporting; Coordinate schedules and service handoffs | Eligibility unknown: Hybrid arrangement permitted; Partial: Two years of dedicated operations responsibility; Absent: Basic SQL; Unknown: Logistics industry knowledge | Confirm unknown or unassessed hard constraints before prioritizing\. |
 
 ## Blocked postings
 
 | Role / company | Fit | Confidence / coverage | Eligibility | Priority | Strengths | Gaps / unknowns | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Client Onboarding Associate](<https://example.com/jobs/demo-103>)<br>Example Pacific | 100\.0/100 | High / 100\.0% | Unmet | Blocked | Maintain HubSpot client records; Onboard clients and prepare reports; Two years in client services | Eligibility unmet: US work authorization and US residence | Resolve the explicit hard blocker or find an eligible equivalent\. |
+| [Client Onboarding Associate](<https://example.com/jobs/demo-103>)<br>Example Pacific<br>Found via: Indeed \(simulated\) | 100\.0/100 | High / 100\.0% | Unmet | Blocked | Maintain HubSpot client records; Onboard clients and prepare reports; Two years in client services | Eligibility unmet: US work authorization and US residence | Resolve the explicit hard blocker or find an eligible equivalent\. |
 
 ## Unverified discovery leads
 
 | Role / company | Fit | Confidence / coverage | Eligibility | Priority | Strengths | Gaps / unknowns | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Customer Operations Associate](<https://example.com/jobs/demo-104>)<br>Example Unverified | N/A — insufficient evidence | Low / 0\.0% | Unknown | Lead only | Not established | Eligibility not assessed | Verify the employer posting, open status, and full job description\. |
+| [Customer Operations Associate](<https://example.com/jobs/demo-104>)<br>Example Unverified<br>Found via: LinkedIn \(simulated\) | N/A — insufficient evidence | Low / 0\.0% | Unknown | Lead only | Not established | Eligibility not assessed | Verify the employer posting, open status, and full job description\. |
 
 ## Evidence and calculation details
 
@@ -40,6 +51,11 @@ High confidence requires a complete JD and at least 90% coverage; medium require
 | Toronto, Canada — hybrid | CAD 70,000–85,000 base salary per year; employer\-stated in fictional JD | 2026\-09\-08 | 2026\-09\-10 | open |
 
 Researcher notes: Fictional JD employment type: full\-time\. Emphasize onboarding results and explain the scope of account ownership truthfully\.
+
+| Discovery source | Observed link |
+| --- | --- |
+| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-101>) |
+| Example North careers \(simulated\) | [Discovery link](<https://example.com/jobs/demo-101>) |
 
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
@@ -78,6 +94,11 @@ Next action: Tailor truthful accomplishments to the strongest relevant requireme
 
 Researcher notes: Fictional JD employment type: full\-time\. Clarify on\-site expectations; prepare an example of coordinating handoffs\.
 
+| Discovery source | Observed link |
+| --- | --- |
+| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-102>) |
+| Indeed \(simulated\) | [Discovery link](<https://example.com/demo-indeed/demo-102>) |
+
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
 | Required skills | Excel operational reporting | met | Fictional JD: Excel reports\. Sample resume, Client Associate: weekly Excel service reports\. |
@@ -114,6 +135,10 @@ Next action: Confirm unknown or unassessed hard constraints before prioritizing\
 
 Researcher notes: Fictional JD employment type: full\-time\. High documented fit does not remove the geographic and authorization blocker\.
 
+| Discovery source | Observed link |
+| --- | --- |
+| Indeed \(simulated\) | [Discovery link](<https://example.com/demo-indeed/demo-103>) |
+
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
 | Required skills | Maintain HubSpot client records | met | Fictional JD: HubSpot required\. Sample resume: maintained HubSpot client records\. |
@@ -149,6 +174,10 @@ Next action: Resolve the explicit hard blocker or find an eligible equivalent\.
 
 Researcher notes: Demonstrates an inaccessible discovery lead; details and open status have not been verified\.
 
+| Discovery source | Observed link |
+| --- | --- |
+| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-104>) |
+
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
 | — | No requirements supplied | Insufficient evidence | — |
@@ -169,8 +198,7 @@ Applicable weight denominator: 100.
 
 Next action: Verify the employer posting, open status, and full job description\.
 
-
-## Suggested roles and search keywords
+## Search keywords (fictional example)
 
 Fictional candidate: customer support and onboarding experience, HubSpot, Excel reporting, and team scheduling. Target: Toronto hybrid or remote within Canada, full-time, CAD 65,000+ base salary.
 
@@ -191,11 +219,6 @@ These are suggested queries, not evidence of current vacancies. Test them with a
 
 Keep Toronto/Canada eligibility and the compensation floor as hard constraints. If results are sparse, broaden equivalent titles or industries first; do not silently include US-only remote work or raise seniority. Salary omissions require clarification. Search syntax varies by provider, so simplify queries when operators are unsupported.
 
+## Demonstration conclusion
 
-## Research coverage
-
-| Source | Work completed | Limitation |
-| --- | --- | --- |
-| Fictional candidate profile | Evidence mapped to fictional job requirements | Demonstration only |
-| Four fictional job records | Three comparisons and one unverified lead | No real websites visited or live vacancies verified |
-| Search keyword plan | Close, adjacent, and stretch queries proposed | Queries have not been executed |
+This is a synthetic workflow example, not a live search. It contains four unique records: three fictional open postings (one with an eligibility blocker) and one unverified lead. Source counts overlap. A real run should state its actual stop reason and remaining coverage gaps.

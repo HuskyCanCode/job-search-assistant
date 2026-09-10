@@ -1,6 +1,6 @@
 # Search expansion and live verification
 
-This guide is for the host skill agent, using its available web search and browser tools. The report script formats supplied evidence; it does not browse, discover jobs, verify links, read a resume, or infer qualifications. No API subscription or scraping service is required. When browsing is unavailable, produce a search plan or compare user-supplied descriptions, clearly stating that live availability was not checked.
+This guide is for the host skill agent, using its available web search and browser tools. A request to find openings means execute searches and return actual job links, not just recommend websites or keywords. Use [job-sources.md](job-sources.md) to choose sources and routes; [live-discovery.md](live-discovery.md) explains the optional public ATS collection helper. That helper collects published employer-board data; the report script only formats supplied evidence. Neither replaces the agent's resume assessment, cross-source discovery, or final verification. No API subscription or scraping service is required. When live tools are unavailable, produce a clearly labeled search plan or compare user-supplied descriptions and state that availability was not checked.
 
 ## 1. Turn the request into a search brief
 
@@ -49,7 +49,9 @@ For example, a Spanish-speaking user seeking administrative work in an accepted 
 
 Create a compact query table with role family, exact query text, source, purpose, and preserved filters. Include reusable searches even when they return no acceptable posts. Keep hard constraints in platform filters and verify them on each result; free-text keywords alone do not enforce them.
 
-Begin with close roles. Search a useful mix of employer career sites, broad job platforms, and appropriate local, public-sector, industry, or professional-association boards. Search engines may help discover an employer's official career page or its linked applicant-tracking-system board. Follow observed links; never construct a supposed posting URL or guess an employer's ATS identifier.
+Begin with close roles. Automatically choose the source mix in [job-sources.md](job-sources.md): user-named sources, broad platforms, original employer pages, and suitable niche/local/remote/entry-level sources. For a broad search in a market they serve, attempt both LinkedIn and Indeed discovery without making the user request them individually. Respect narrower source choices and exclusions. Follow observed employer career and applicant-tracking-system (ATS) links; never guess an employer's ATS identifier or a posting URL.
+
+Execute independent role/source queries in small parallel batches when host tools support it, then inspect the returned candidates before refining. Search a platform through an available supported connector or browser UI; otherwise use a domain-restricted web search. For example, `site:linkedin.com/jobs/view "junior frontend" "New York"` is **web discovery of LinkedIn-indexed pages**, not a completed LinkedIn platform search. Record that method honestly. A blocked platform page does not mean zero matching jobs; try indexed discovery and the identified employer's site, and preserve the limitation.
 
 Examples of query text to adapt:
 
@@ -58,25 +60,27 @@ Examples of query text to adapt:
 - `"Python developer" "remote" "Canada"` followed by checking province and work-authorization restrictions.
 - `"customer support specialist" "bilingual" "Spanish"` only when the language is supported by user evidence.
 - `site:<verified employer domain> "careers" "data analyst"` using a domain already verified for that employer.
+- `site:indeed.com "application support" "Boston"`, then compare the observed result with the employer's posting.
+- `site:jobs.ashbyhq.com "frontend" "junior" "Canada"`, then verify the employer-to-board relationship and the specific listing. This is discovery across indexed ATS pages, not a complete ATS inventory.
 
-Use short variants when a platform treats Boolean syntax as literal text. Support for operators differs by source and can change; consult the current UI/help instead of copying one universal query. Indeed documents phrase, exclusion, title, company, and other search refinements. [Indeed search guidance](https://support.indeed.com/hc/en-us/articles/204488950-Improving-Your-Job-Searches-Tips-and-Help).
+Use short variants when a platform treats Boolean syntax as literal text. Support for operators differs by source and can change; consult the current UI/help instead of copying one universal query. Indeed documents phrase, exclusion, title, company, and other search refinements. [Indeed search guidance](https://www.indeed.com/help/job-seekers/articles/204488950-improving-your-job-searches-tips-and-help?hl=en&co=US).
 
-After an initial pass, record which titles and terms returned relevant results and which created noise. Add synonyms found in good descriptions. If results are sparse, broaden one soft preference at a time: title wording, equivalent tools, related industry, then other user-permitted flexibility. Explain each expansion. If a hard constraint prevents useful results, report that finding and propose a possible change without applying it silently.
+After an initial pass, record which titles and terms returned relevant results and which created noise. Add synonyms found in good descriptions. If an employer-specific search is sparse, remove speculative ATS-domain filters and find the employer's official Careers link: many employers use hosts outside the collector's three providers. If results are sparse, broaden one soft preference at a time: title wording, equivalent tools, related industry, then other user-permitted flexibility. Explain each expansion. If a hard constraint prevents useful results, report that finding and propose a possible change without applying it silently.
 
-Search adjacent roles when evidence supports the transition; keep stretch roles visibly labeled. Stop when further queries mostly repeat results, source coverage is adequate for the request, or the agreed search scope is reached. Report coverage and limitations; do not use a fixed large query quota or imply completeness.
+Search adjacent roles when evidence supports the transition; keep stretch roles visibly labeled. Refine based on actual relevant results rather than filling a title list with unsupported matches. Stop when further queries mostly repeat results, the selected source tiers and named sources have been attempted, or the agreed scope is reached. State any unattempted sources. Never label a generated query list as completed searching or promise all jobs on the internet.
 
-## 4. Discovery sources
+## 4. Keep a source coverage ledger
 
-These official source pages were checked on 2026-09-10. Recheck their current controls during each live run; interfaces and availability can change. Choose sources for the user's market rather than searching every source by default.
+Record each actual source/query attempt in `search_sources` using the contract in [report-format.md](report-format.md). Capture `source`, observed `url`, `method`, exact `query`, `status`, `checked_at`, `results_seen`, `verified_open`, and `notes`. Methods are `platform_search`, `web_search`, `employer_site`, and `public_api`. A homepage read without a role query is source setup, not a completed search.
 
-| Source | Appropriate use |
+| Status | Meaning |
 | --- | --- |
-| Employer career page | Preferred starting point for confirming a vacancy and following its genuine application link; establish the employer domain before following a board |
-| [LinkedIn job-search filters](https://www.linkedin.com/help/linkedin/answer/a507443) | Broad discovery with location, posting-date, company, experience, and employment filters; verify the individual post and employer source |
-| [Indeed search guidance](https://support.indeed.com/hc/en-us/articles/204488950-Improving-Your-Job-Searches-Tips-and-Help) | Broad/local-market discovery and query refinement; use the available country site and filters |
-| [USAJOBS search guidance](https://help.usajobs.gov/how-to/search) | U.S. federal openings; inspect who may apply, grade, job series, closing dates, location, and remote/telework filters |
-| [EURES](https://eures.europa.eu/index_en?lang=en) | European vacancies and links to relevant employment services; follow the current Find a job control |
-| [O*NET](https://www.onetonline.org/help/online/search) / [ESCO](https://esco.ec.europa.eu/es) | Occupational vocabulary and related functions; keep these career resources separate from actual job-post links |
+| `searched` | The stated query/method ran and its returned results were inspected; no claim to the source's entire inventory |
+| `limited` | Partial coverage: indexed-only access, truncated results, incomplete descriptions, or another stated restriction |
+| `blocked` | This attempt could not retrieve usable results due to access or tool failure |
+| `skipped` | Not attempted; explain market mismatch, user exclusion, scope/time limit, or another concrete reason |
+
+`results_seen` counts candidate posting records actually inspected for that attempt, not a search engine's estimated hit count. A successful query with no candidates can record `0`; use `null` with `blocked` or `skipped`, with `verified_open: 0`. A blocked UI attempt and a successful web fallback are separate entries with separate methods. Record verification limitations even when the employer source succeeds. Counts of `verified_open` may overlap across sources; the report total is unique verified open requisitions after deduplication, never a sum of source counts.
 
 ## 5. Verify every reportable vacancy
 
@@ -91,14 +95,14 @@ Capture the following evidence before scoring:
 - The employer's posted date and closing date, if shown; separately record the actual verification timestamp with time zone. A date the agent checked the page is not the posting date. Preserve ambiguous relative dates as reported, with the check date as context.
 - Observed status: open, closed/expired, or uncertain. An accessible page alone does not prove applications are still accepted; check status text and the actual application entry point where accessible without submitting.
 
-Deduplicate first by employer plus requisition ID, then canonical observed URL, and finally employer/title/location with description comparison. Preserve materially different requisitions. Prefer the original employer listing over syndicated copies; list additional locations in one row when they belong to one requisition. Never claim several copies are several opportunities.
+Deduplicate first by employer plus requisition ID, then canonical observed URL, and finally employer/title/location with description comparison. Preserve materially different requisitions. Prefer the original employer listing as `url`, retaining observed syndicated links in `discovered_via: [{source, url}]`. List additional locations in one row when they belong to one requisition. Do not merge similar titles without identity evidence, and never claim several copies are several opportunities.
 
 Only score jobs whose accessible descriptions provide enough evidence for comparison. Keep blocked, snippet-only, and otherwise unverified leads in a separate table with the reason and observed source link; do not give them confident match scores. Exclude confirmed closed jobs from current recommendations or show them separately as closed examples. If dates, pay, eligibility, or application status remain unknown, say so in the table.
 
 ## 6. Hand off evidence to the report
 
-Give the deterministic report script only the structured observations and evidence-backed assessment defined by this repository. It cannot turn a supplied URL into verification. Preserve source URLs and verification timestamps in the rendered table, and label hypothetical/demo rows explicitly.
+Give the deterministic report script only the structured observations and evidence-backed assessment defined by this repository, including `search_sources` and job `discovered_via` links. It cannot turn a supplied URL or imported ATS record into verification. Preserve source URLs and verification timestamps in the rendered table, and label hypothetical/demo rows explicitly.
 
 Rank eligible, verified close and adjacent roles using the scoring rubric, then explain the strongest evidence and material gaps. Keep unknown eligibility visible rather than treating it as passed. A resume-to-description match score describes documented fit; it is not an interview or hiring probability. Do not convert search rank, keyword density, applicant counts, or a platform badge into a likelihood of receiving an offer.
 
-Finish with the job table, a separate unverified-lead table when useful, and the reusable keyword/query table. Add a short coverage note listing markets/sources searched, check date, and significant gaps. Suggest concrete next searches or truthful resume improvements based on repeated requirements; do not apply, contact employers, upload resumes to external sites, or enable alerts without the user's authorization.
+Finish with the job table, a separate unverified-lead table when useful, the reusable keyword/query table, and the source coverage table. Include the unique active-post count, markets searched, check date, important gaps, and why the search stopped. When no verified jobs remain, report zero verified jobs and any unverified leads separately; do not turn access failures into a claim that no jobs exist. Suggest concrete next searches or truthful resume improvements based on repeated requirements. Live searching happens during the current run; recurring searches require a user-requested schedule. Do not apply, contact employers, upload resumes to external sites, or enable alerts without the user's authorization.

@@ -1,4 +1,4 @@
 interface:
   display_name: "Job Search Assistant"
-  short_description: "Find jobs, expand searches, and compare resume fit"
-  default_prompt: "Use $job-search-assistant to find relevant jobs from my goals or resume and create a linked table with search keywords, fit evidence, and application priorities."
+  short_description: "Search job boards and compare openings with your resume"
+  default_prompt: "Use $job-search-assistant to automatically search LinkedIn, Indeed, employer career pages, and other relevant sources using my goals or resume, then return verified job links, fit evidence, application priorities, and source coverage in tables."
