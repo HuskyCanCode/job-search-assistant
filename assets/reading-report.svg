@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="960" viewBox="0 0 1000 960" role="img" aria-labelledby="title desc">
+  <title id="title">How to read a company-first job-search report</title>
+  <desc id="desc">A fictional company overview shows a linked company name, 500 employees, an 80 out of 100 job-fit rating, a growing workforce trend, unknown layoff information, and three recommended job links. The rating measures fit with researched jobs, not hiring odds. Unknown means a fact is not established; N/A means no fit score is available.</desc>
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; }
+    .label { fill: #425460; font-size: 20px; }
+    .value { fill: #172D3E; font-size: 28px; font-weight: 700; }
+    .body { fill: #425460; font-size: 22px; }
+    .link { fill: #12695F; font-size: 22px; text-decoration: underline; }
+    .small { fill: #425460; font-size: 19px; }
+  </style>
+  <rect width="1000" height="960" rx="24" fill="#F6F2E8"/>
+  <rect x="40" y="36" width="186" height="34" rx="17" fill="#DDEDE6"/>
+  <text x="56" y="59" fill="#17685F" font-size="16" font-weight="700" letter-spacing="1">READ THE REPORT</text>
+  <text x="40" y="120" fill="#172D3E" font-size="40" font-weight="700">Start with the company overview</text>
+  <text x="40" y="157" class="body">A fictional example row, expanded here so each field is easy to read.</text>
+
+  <rect x="40" y="194" width="920" height="394" rx="18" fill="#FFFFFF" stroke="#D8DFDA" stroke-width="1.5"/>
+  <text x="64" y="233" class="label">Company name links to its website</text>
+  <text x="64" y="277" fill="#12695F" font-size="32" font-weight="700" text-decoration="underline">Meridian Demo Labs</text>
+  <rect x="664" y="215" width="272" height="84" rx="14" fill="#DDEDE6"/>
+  <text x="684" y="246" fill="#17685F" font-size="19">Provisional company match</text>
+  <text x="684" y="282" fill="#172D3E" font-size="30" font-weight="700">80 / 100</text>
+  <line x1="64" y1="320" x2="936" y2="320" stroke="#D8DFDA" stroke-width="1.5"/>
+
+  <text x="64" y="358" class="label">Company size</text>
+  <text x="64" y="399" class="value">500 employees</text>
+  <text x="64" y="429" class="small">Reported headcount</text>
+  <line x1="340" y1="344" x2="340" y2="437" stroke="#D8DFDA" stroke-width="1.5"/>
+  <text x="366" y="358" class="label">Workforce trend</text>
+  <text x="366" y="399" class="value">Growing</text>
+  <text x="366" y="429" class="small">Comparable 12-month counts</text>
+  <line x1="660" y1="344" x2="660" y2="437" stroke="#D8DFDA" stroke-width="1.5"/>
+  <text x="686" y="358" class="label">Latest reported layoff</text>
+  <text x="686" y="399" class="value">Unknown</text>
+  <text x="686" y="429" class="small">No date established</text>
+
+  <line x1="64" y1="456" x2="936" y2="456" stroke="#D8DFDA" stroke-width="1.5"/>
+  <text x="64" y="493" class="label">Recommended jobs · up to 3 direct posting links</text>
+  <text x="64" y="539" class="link">Junior web developer</text>
+  <text x="388" y="539" class="link">QA analyst</text>
+  <text x="686" y="539" class="link">Technical support</text>
+  <text x="64" y="568" fill="#786022" font-size="19">Example eligibility note: work authorization still needs confirmation.</text>
+
+  <rect x="40" y="614" width="448" height="236" rx="18" fill="#FFFFFF" stroke="#D8DFDA" stroke-width="1.5"/>
+  <circle cx="78" cy="654" r="21" fill="#16796F"/>
+  <text x="78" y="662" fill="#FFFFFF" font-size="24" font-weight="700" text-anchor="middle">1</text>
+  <text x="112" y="663" fill="#172D3E" font-size="27" font-weight="700">What the score means</text>
+  <text x="64" y="709" class="body">Fit with the researched jobs,</text>
+  <text x="64" y="741" class="body">based on your resume evidence.</text>
+  <text x="64" y="785" fill="#17685F" font-size="22" font-weight="700">80 / 100 is not an 80% chance</text>
+  <text x="64" y="817" fill="#17685F" font-size="22" font-weight="700">of getting hired.</text>
+
+  <rect x="512" y="614" width="448" height="236" rx="18" fill="#FFFFFF" stroke="#D8DFDA" stroke-width="1.5"/>
+  <circle cx="550" cy="654" r="21" fill="#16796F"/>
+  <text x="550" y="662" fill="#FFFFFF" font-size="24" font-weight="700" text-anchor="middle">2</text>
+  <text x="584" y="663" fill="#172D3E" font-size="27" font-weight="700">Unknown and N/A</text>
+  <text x="536" y="709" class="body"><tspan font-weight="700">Unknown:</tspan> a fact has not</text>
+  <text x="536" y="741" class="body">been established by the research.</text>
+  <text x="536" y="785" class="body"><tspan font-weight="700">N/A:</tspan> no fit score is available.</text>
+  <text x="536" y="817" class="body">Check the evidence and caveats.</text>
+
+  <text x="40" y="891" fill="#17685F" font-size="21" font-weight="700">Then read each company’s job table for requirements, gaps and verified links.</text>
+  <text x="40" y="928" fill="#425460" font-size="18">Illustration only. All company names, job titles and figures shown here are fictional examples.</text>
+</svg>

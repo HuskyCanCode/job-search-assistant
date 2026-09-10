@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="860" viewBox="0 0 1000 860" role="img" aria-labelledby="title desc">
+  <title id="title">Get started with Job Search Assistant in six steps</title>
+  <desc id="desc">Install the skill. Share an optional resume and your preferences. Send a search request. Read the company and job tables. Refine the shortlist. Open verified job links and apply yourself.</desc>
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; }
+    .heading { fill: #172D3E; font-size: 27px; font-weight: 700; }
+    .body { fill: #425460; font-size: 22px; }
+    .step { fill: #FFFFFF; font-size: 24px; font-weight: 700; text-anchor: middle; }
+    .card { fill: #FFFFFF; stroke: #D8DFDA; stroke-width: 1.5; }
+  </style>
+  <rect width="1000" height="860" rx="24" fill="#F6F2E8"/>
+  <rect x="40" y="36" width="192" height="34" rx="17" fill="#DDEDE6"/>
+  <text x="56" y="59" fill="#17685F" font-size="16" font-weight="700" letter-spacing="1">GETTING STARTED</text>
+  <text x="40" y="120" fill="#172D3E" font-size="40" font-weight="700">From your goals to a job shortlist</text>
+  <text x="40" y="157" fill="#425460" font-size="22">Follow the steps in order. You decide which jobs to pursue.</text>
+
+  <rect class="card" x="40" y="194" width="448" height="174" rx="18"/>
+  <circle cx="78" cy="234" r="22" fill="#16796F"/>
+  <text class="step" x="78" y="242">1</text>
+  <text class="heading" x="114" y="243">Install the skill</text>
+  <text class="body" x="64" y="293">Add Job Search Assistant to Codex.</text>
+  <text class="body" x="64" y="326">Follow the install steps in this guide.</text>
+
+  <rect class="card" x="512" y="194" width="448" height="174" rx="18"/>
+  <circle cx="550" cy="234" r="22" fill="#16796F"/>
+  <text class="step" x="550" y="242">2</text>
+  <text class="heading" x="586" y="243">Share your preferences</text>
+  <text class="body" x="536" y="293">Choose roles, location and work style.</text>
+  <text class="body" x="536" y="326">Attach a resume if you want fit scores.</text>
+
+  <rect class="card" x="40" y="392" width="448" height="174" rx="18"/>
+  <circle cx="78" cy="432" r="22" fill="#16796F"/>
+  <text class="step" x="78" y="440">3</text>
+  <text class="heading" x="114" y="441">Send a search request</text>
+  <text class="body" x="64" y="491">Mention the skill and describe</text>
+  <text class="body" x="64" y="524">the jobs you would like it to find.</text>
+
+  <rect class="card" x="512" y="392" width="448" height="174" rx="18"/>
+  <circle cx="550" cy="432" r="22" fill="#16796F"/>
+  <text class="step" x="550" y="440">4</text>
+  <text class="heading" x="586" y="441">Read the tables</text>
+  <text class="body" x="536" y="491">Compare companies, then their jobs.</text>
+  <text class="body" x="536" y="524">Check fit, requirements and unknowns.</text>
+
+  <rect class="card" x="40" y="590" width="448" height="174" rx="18"/>
+  <circle cx="78" cy="630" r="22" fill="#16796F"/>
+  <text class="step" x="78" y="638">5</text>
+  <text class="heading" x="114" y="639">Refine your shortlist</text>
+  <text class="body" x="64" y="689">Tell the skill what to keep or change:</text>
+  <text class="body" x="64" y="722">role, city, pay or experience level.</text>
+
+  <rect class="card" x="512" y="590" width="448" height="174" rx="18"/>
+  <circle cx="550" cy="630" r="22" fill="#16796F"/>
+  <text class="step" x="550" y="638">6</text>
+  <text class="heading" x="586" y="639">Open links and apply</text>
+  <text class="body" x="536" y="689">Open a verified job link, review it</text>
+  <text class="body" x="536" y="722">and submit the application yourself.</text>
+
+  <text x="40" y="816" fill="#17685F" font-size="21" font-weight="700">A resume is optional. Your goals are enough to start a search.</text>
+</svg>
