@@ -1,6 +1,6 @@
 # Company research for a job search
 
-Use this reference with [search-strategy.md](search-strategy.md), [resume-matching.md](resume-matching.md), and [report-format.md](report-format.md). Research live sources during each run; do not reuse old company facts without checking their dates and scope.
+Use this reference with [search-strategy.md](search-strategy.md), [resume-matching.md](resume-matching.md), and [report-format.md](report-format.md). Research live evidence through the permitted methods in [job-sources.md](job-sources.md#access-policy-for-this-skill); do not reuse old company facts without checking their dates and scope. Reuse the provider access decision established during source setup, without adding an approval or terms-review gate for every company.
 
 ## Company-first scope
 
@@ -13,7 +13,9 @@ Use this reference with [search-strategy.md](search-strategy.md), [resume-matchi
 
 ## Establish the employer and reporting scope
 
-Open the official company website and follow its careers links. Confirm that the employer, brand, recruiting agency, ATS board and job posting refer to the same organization. A familiar ATS hostname alone does not establish identity.
+Identify the official company website through permitted search or existing verified evidence, then read allowed employer sources and follow observed careers links. Confirm that the employer, brand, recruiting agency, ATS board and job posting refer to the same organization. A familiar ATS hostname alone does not establish identity or unrestricted reuse rights.
+
+Do not automatically retrieve LinkedIn company pages, member profiles, employee lists or job pages for identity, headcount or trend research. This includes browser automation, web-open tools, scripts and third-party scraper routes, even with a logged-in account. An expressly authorized integration is optional only when its data scope and reuse permissions cover this task and its use matches the user's choices. Indexed mentions can guide research through an authorized search integration, within its result-use terms; they are not permission to copy LinkedIn data or fetch the destination. Prefer independent employer evidence and report unknown facts when it is unavailable.
 
 Record the company display name, official website, relevant legal entity when identifiable, parent/brand relationship, and geography covered by the company facts. If a staffing agency recruits for an unnamed client, identify the agency and the undisclosed-client limitation; do not assign the agency's workforce facts to the client.
 
@@ -26,19 +28,19 @@ Prefer sources in this order, while choosing the source that actually covers the
 1. Official filings, annual reports, company statements, and employer career pages.
 2. Official public notices, including applicable regional WARN notices for a specific layoff event.
 3. Credible journalism that attributes dates, affected workforce and entity scope.
-4. Clearly labeled third-party estimates or platform company profiles when better evidence is unavailable.
+4. Clearly labeled third-party estimates or company profiles obtained through a permitted method, with applicable use and storage rights, when better evidence is unavailable. Do not fall back to automatic LinkedIn retrieval.
 
 For each fact retain a direct source URL, source publication date when known, the fact's **as-of date**, actual check date, entity/geographic scope, and whether the value is reported, estimated or derived. A current page can contain an old fact. A crawl date is neither its publication date nor its measurement date.
 
-Use short paraphrases and keep source provenance for disputed facts. When sources conflict, compare dates, definitions and scope before selecting a value. If they remain incompatible, report the disagreement or unknown rather than silently choosing a convenient number.
+Use short paraphrases and keep source provenance for disputed facts where the applicable terms allow their use and retention. Public access, search indexing and attribution alone do not grant unrestricted reuse rights. Do not use caches, mirrors or scraper resellers to evade a source restriction. When sources conflict, compare dates, definitions and scope before selecting a value. If they remain incompatible, report the disagreement or unknown rather than silently choosing a convenient number. Missing company context does not stop otherwise useful job recommendations.
 
 ## Company size
 
 Report an exact employee count, a stated range, or a labeled estimate according to the evidence. Include the source and as-of date, plus geography and entity scope. Preserve qualifiers such as full-time employees, employees and contractors, or consolidated group.
 
 - Do not convert an employee range into an exact count or midpoint presented as fact.
-- LinkedIn's employee-size band and the number of profiles associated with a company are different metrics. Neither becomes an official workforce count because it is displayed on LinkedIn.
-- If only associated-profile counts are available, label that metric and platform explicitly. Do not present it as total employees.
+- Prefer official workforce counts and reports. Do not automatically fetch LinkedIn employee-size bands or associated-profile counts. If such evidence is available through an expressly permitted route with suitable reuse rights, these are different metrics and neither is an official workforce count merely because LinkedIn displays it.
+- If permitted evidence consists only of associated-profile counts, label that metric, platform and access limits explicitly. Do not present it as total employees or as a measured official workforce trend.
 - Funding, revenue, open jobs and office count do not establish employee count.
 - Use **Unknown — no usable workforce figure found** when evidence is missing. An access failure should say **Unknown — source access limited**, not zero employees.
 

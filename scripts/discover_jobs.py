@@ -2,7 +2,7 @@
 """Collect public employer-board leads; Python 3.10+, standard library only.
 
 This is a discovery input to the skill, not the scored-report input. The host
-agent also searches LinkedIn, Indeed, other boards and employer career pages.
+agent handles other permitted sources separately under the skill's source policy.
 Board tokens must come from observed career-page links, never guessed names.
 Docs checked 2026-09-10: docs.greenhouse.io/job-board.html,
 github.com/lever/postings-api, developers.ashbyhq.com/docs/public-job-posting-api.

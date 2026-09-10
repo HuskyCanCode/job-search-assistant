@@ -2,19 +2,19 @@
 
 ## End-to-end execution
 
-1. Read the user's goals and any resume, preserving unknowns. Expand close and adjacent titles and choose country-relevant sources using [job-sources.md](job-sources.md).
-2. Execute the source plan with available live web search, browser, or supported connectors. LinkedIn and Indeed searches happen here through the host tools. Record actual queries and access limitations; indexed search is not a full platform search.
-3. Follow observed employer career links. For Greenhouse, Lever, and Ashby boards, optionally collect their published jobs using the script below. Keep normal web discovery running for other sources, including Workday and specialist boards.
+1. Read the user's goals and any resume, preserving unknowns. Expand close and adjacent titles and choose country-relevant sources under the access policy in [job-sources.md](job-sources.md).
+2. Execute employer-first discovery with an authorized host search integration and permitted sources. The host can find indexed references to catalog sites without directly fetching restricted destinations; LinkedIn browser/web-open automation is disabled. Record actual queries and skipped or limited routes. Indexed search is not a full platform search.
+3. Follow observed employer career links through permitted access methods. For Greenhouse, Lever, and Ashby boards, optionally collect their published jobs using the script below under the applicable provider/employer terms. Keep authorized discovery running for other employers, including Workday and specialist boards; public pages or familiar hosts are not blanket permission to automate them.
 4. Merge obvious duplicate leads by employer/requisition and canonical URL before inspecting descriptions or application entries. Preserve all observed origins. Inspect the strongest unique candidates, confirming employer identity, role, location, restrictions, pay and current open status. Collection or a successful page request alone does not finish verification.
 5. Reconcile any further duplicate requisitions established by full descriptions, retaining their discovery URLs. Compare professional evidence using the matching rubric. Keep uncertain leads separate and do not manufacture scores.
-6. Research employer identity, size, workforce trend and latest reported layoffs using [company-research.md](company-research.md). Target 20 distinct relevant employers by default, not20 postings from a few employers; keep missing metadata unknown.
+6. Research employer identity, size, workforce trend and latest reported layoffs using [company-research.md](company-research.md). Target 20 distinct relevant employers by default, not 20 postings from a few employers; keep missing metadata unknown.
 7. Populate schema version 2 from [report-format.md](report-format.md). Render the company overview with up to 3 recommended jobs each first, then jobs grouped by employer, evidence and source coverage. Add keyword queries and a conclusion explaining any shortfall and where coverage ended.
 
-The skill runs these steps automatically during the user's request. It does not need separate permission for each ordinary read-only source. Background repetition needs a user-requested schedule. Applying, messaging, resume uploads, account creation, and paid services are separate actions.
+The skill runs these steps automatically during the user's request. It does not need separate user permission for each read-only action within the permitted source plan; user consent does not grant third-party platform rights. Background repetition needs a user-requested schedule. Applying, messaging, resume uploads, account creation, and paid services are separate actions.
 
 ## Configure observed boards
 
-The collector is a Python 3.10+ standard-library CLI. It calls documented public GET endpoints only; it needs network access, but no provider API key. Read the employer's actual career link first and copy its board token. A company name is not automatically its token. Never probe guessed tokens or invent tenant URLs.
+The collector is a Python 3.10+ standard-library CLI. Its built-in fetcher calls documented public GET endpoints only; it needs network access, but no provider API key. Establish the permitted listing use and saved-output rights for the provider/employer before collection; no-auth access is not a blanket reuse license. Read the employer's actual career link through a permitted route and copy its board token. A company name is not automatically its token. Never probe guessed tokens or invent tenant URLs.
 
 Create `private/boards.json` as a top-level list:
 
@@ -37,6 +37,8 @@ python3 scripts/discover_jobs.py --boards private/boards.json --output private/l
 Lever uses 100 jobs per page, with a default cap of 10 pages and a configurable cap of 1–20. Greenhouse and Ashby use their documented whole-board response. The collector notes pagination/response limitations, malformed entries, and partial failures. Requests have a per-request timeout of 1–60 seconds (default 15), a 16 MiB response cap, and no automatic retries; redirects and arbitrary endpoint hosts are refused. This is a per-request timeout, not a total run deadline.
 
 Independent employer boards run concurrently, with `--workers` from 1–8 (default 4). Use `--workers 1` for sequential collection or reduce concurrency when a provider requires it. Each board's pagination stays sequential; duplicate board entries are not fetched twice. Results and retained discovery origins are merged in input-board order, so response timing does not change which duplicate becomes the primary record. A failed board preserves useful results from the others. This speeds up waiting for independent requests; it is not a guarantee of faster end-to-end research, and it adds no API integration for the catalog job sites.
+
+The built-in collector only retrieves listing responses from its allowlisted public API hosts. It stores returned posting/application URLs without fetching them, rejects redirects, and does not use browser sessions, account cookies or consumer search pages. The host agent must separately enforce the source policy when verifying those links. This is not a network firewall over host tools, and a caller-supplied custom fetcher is outside the built-in network guard. Do not substitute a custom fetcher to bypass source restrictions. Output includes descriptions, so use it only where that retention is permitted; otherwise use a permitted route that does not save restricted content.
 
 Use a fresh output path, or `--overwrite` when deliberately replacing a previous collection. Exit code `0` means all supplied board checks completed as `searched`; `1` means output was saved with at least one limited/blocked source; `2` means an input/output error prevented normal completion. Always inspect `sources`, including when no jobs matched. Continue with usable leads from successful sources when another source fails.
 

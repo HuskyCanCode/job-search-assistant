@@ -6,7 +6,7 @@ A reusable agent skill that searches online jobs from a career goal or resume an
 
 - Refines a broad search into useful roles, filters, and reusable search queries.
 - Suggests close, adjacent, and stretch roles based on transferable experience.
-- Searches relevant sites from a default catalog of LinkedIn, Indeed, ZipRecruiter, Built In, Y Combinator Jobs, Wellfound, HiringCafe, SimplyHired, Lensa, and Teal, plus employer career pages and appropriate specialist sources, using the host agent's live web tools.
+- Uses authorized search tools and employer sources, with a discovery catalog covering LinkedIn, Indeed, ZipRecruiter, Built In, Y Combinator Jobs, Wellfound, HiringCafe, SimplyHired, Lensa, and Teal through permitted routes.
 - Speeds discovery with parallel query batches, early deduplication, shared employer research, and limited retries of blocked sources.
 - Collects published leads concurrently from observed Greenhouse, Lever, and Ashby employer boards through documented public APIs.
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
@@ -28,11 +28,11 @@ Invoke the skill and attach a resume to the conversation if you want resume-base
 
 You can also specify sources:
 
-> Use $job-search-assistant. Search LinkedIn, Indeed, Wellfound, relevant remote boards, and employer career sites for junior frontend or software support jobs in New York. Include related job titles, deduplicate results, and show where each job was found and which sources were limited.
+> Use $job-search-assistant. Find junior frontend or software support jobs in New York using the employer-first approach. Include permitted indexed discovery for LinkedIn, Indeed and Wellfound, then verify jobs on employer career pages. Include related titles, remove duplicates, and show source limitations.
 
 You do not have to name every board: the skill chooses sources based on the role and country. A request to find jobs runs the search in the current conversation. An older resume or missing recent projects changes the recommended level and evidence confidence; the skill still searches for suitable openings. Background searches require a separately requested schedule.
 
-Fast search is the default: relevant catalog sites are attempted in small parallel batches, duplicate leads are merged before detailed review, and one promising job per employer is verified before filling additional slots. Company facts are researched once per employer. The skill avoids repeating unchanged searches or blocked page visits. Verification and the 20-company target remain in place; actual runtime depends on source access and available evidence. Ask for a smaller shortlist or a time limit when you want a deliberately narrower first pass. See the [fast search workflow](references/search-strategy.md#fast-search-workflow).
+Fast search is the default: permitted discovery queries run in small parallel batches, duplicate leads are merged before detailed review, and one promising job per employer is verified before filling additional slots. Company facts are researched once per employer. The skill avoids repeating unchanged searches or blocked page visits. Verification and the 20-company target remain in place; actual runtime depends on source access and available evidence. Ask for a smaller shortlist or a time limit when you want a deliberately narrower first pass. See the [fast search workflow](references/search-strategy.md#fast-search-workflow).
 
 The target is 20 **companies**, not 20 links. Fewer than three suitable roles at a company is a valid result. If the search cannot substantiate 20 relevant employers, it reports the actual count and coverage limits rather than filling the table with duplicates, closed jobs or unsupported matches. A user-requested smaller scope overrides the default.
 
@@ -46,9 +46,17 @@ For a career change:
 
 > Use $job-search-assistant. I want to move from hospitality into office operations. Use my resume to identify transferable skills, compare close and stretch roles, and show which job requirements need stronger evidence.
 
-The host needs live web search or browser access to discover and verify current openings, and file-reading capability for the uploaded format. A scanned PDF may need OCR. If a capability is unavailable, the skill explains the limitation and can still plan searches or compare supplied descriptions.
+The host needs an authorized live search integration or permitted employer access to discover and verify current openings, and file-reading capability for the uploaded format. A scanned PDF may need OCR. If a capability is unavailable, the skill explains the limitation and can still plan searches or compare supplied descriptions.
 
-LinkedIn and other boards may limit public access. The skill can use indexed discovery and original employer pages, labeling that coverage accurately; it cannot guarantee every posting or bypass sign-in restrictions. The included public-API collector does **not** search LinkedIn or Indeed. See the [source catalog](references/job-sources.md) and [live discovery workflow](references/live-discovery.md) for how the tools work together.
+## Employer-first access
+
+Direct automated LinkedIn job, company and member browsing is disabled in the skill workflow. It uses authorized search discovery to find employers, then verifies openings through permitted employer career pages or documented public job APIs. LinkedIn-only leads can remain for manual review; they are not represented as verified openings. The same permission checks apply to other boards. Public visibility and search-engine indexing do not themselves authorize automated access or copying.
+
+The skill does not replace LinkedIn automation with scraping Google results. It uses an authorized search integration under that provider's access and storage terms, keeps reports to concise job facts and comparisons, and prefers direct employer application links. Company size and workforce research prioritize official reports, announcements, government notices and credible reporting. Missing data stays unknown.
+
+This preserves the 20-company target, up to three recommendations per company, resume matching, company context and table exports. Source restrictions can change the actual vacancies found or prevent reaching the target; the report states that honestly. This is a risk-reduction strategy, not legal clearance. See the [source access policy and catalog](references/job-sources.md).
+
+The included public-API collector does **not** search LinkedIn or Indeed. Its built-in network requests are limited to supported public listing APIs; the host agent follows the skill's source policy separately. The skill is not a firewall over all host tools. See the [live discovery workflow](references/live-discovery.md) for the distinction.
 
 ## Public employer-board collection
 

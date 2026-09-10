@@ -26,7 +26,7 @@ The example URL is only a format illustration. Replace it with an observed posti
 | --- | --- | --- | --- | --- |
 | Distinct JD criterion | Rubric category | met / partial / absent / unknown | Specific source section or user statement | Action supported by the evidence |
 
-Provide evidence details for the strongest opportunities and any recommendation that hinges on a disputed or missing requirement. Keep inaccessible leads, known hard blockers, and closed postings separate from active recommendations. Show a short search log with queries/sources used, check date, coverage, and why the search stopped. If zero active matches remain, report zero and suggest specific changes to soft preferences; do not fabricate replacements.
+Provide evidence details for the strongest opportunities and any recommendation that hinges on a disputed or missing requirement. Keep inaccessible leads, known hard blockers, and closed postings separate from active recommendations. Show a short search log with queries/sources used, check date, coverage, and why the search stopped. Policy-disabled routes use `skipped`, while actual permitted requests that fail use `blocked`; permitted indexed discovery remains `web_search`/`limited`. Prefer independently verified employer facts and direct employer job links. Provider terms may restrict retaining result text, snippets or raw responses: preserve only allowed attribution and note any resulting evidence limits. Do not evade retention restrictions by copying those responses into this schema or a checkpoint. If zero active matches remain, report zero and suggest specific changes to soft preferences; do not fabricate replacements.
 
 ## Repeatable helper
 
