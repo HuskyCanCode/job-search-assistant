@@ -9,6 +9,7 @@ github.com/lever/postings-api, developers.ashbyhq.com/docs/public-job-posting-ap
 """
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import hashlib
 from html import unescape
@@ -209,17 +210,83 @@ def normalize(raw, board, api_url, checked_at):
     }
 
 
-def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None):
-    """Return deduplicated leads. Source count means newly retained unique leads."""
+def collect_board(board, source, checked, timeout, max_pages, fetcher):
+    """Fetch one board, keeping pagination and its error state sequential."""
+    jobs = []
+    successful_pages, page_signatures = 0, set()
+    for page in range(max_pages if board["provider"] == "lever" else 1):
+        url = endpoint(board, page)
+        try:
+            payload = fetcher(url, timeout)
+            rows = payload if board["provider"] == "lever" else payload.get("jobs") if isinstance(payload, dict) else None
+            if not isinstance(rows, list):
+                raise ValueError("Unexpected response: job list missing")
+            successful_pages += 1
+            source["fetched_count"] += len(rows)
+            signature = hashlib.sha256(json.dumps(rows, sort_keys=True).encode()).hexdigest()
+            repeated_page = bool(rows and signature in page_signatures)
+            if repeated_page:
+                source.update(status="limited", truncated=True)
+                source["errors"].append("Repeated page; stopped to avoid a pagination loop")
+            page_signatures.add(signature)
+            malformed = 0
+            for raw in rows:
+                try:
+                    job = normalize(raw, board, url, checked)
+                except (ValueError, TypeError):
+                    malformed += 1
+                    continue
+                if job is None:
+                    continue
+                jobs.append(job)
+            if malformed:
+                source["status"] = "limited"
+                source["errors"].append(f"Skipped {malformed} malformed job entries on page {page + 1}")
+            if board["provider"] == "greenhouse":
+                meta = payload.get("meta")
+                total = meta.get("total") if isinstance(meta, dict) else None
+                if isinstance(total, int) and total > len(rows):
+                    source.update(status="limited", truncated=True)
+                    source["errors"].append("API returned fewer jobs than its reported total")
+            if repeated_page or board["provider"] != "lever" or len(rows) < PAGE_SIZE:
+                break
+            if page + 1 == max_pages:
+                source.update(status="limited", truncated=True)
+                source["errors"].append("Page cap reached; more postings may exist")
+        except (HTTPError, URLError, OSError, ValueError) as exc:
+            source["status"] = "limited" if successful_pages else "blocked"
+            if isinstance(exc, HTTPError):
+                message = f"HTTP {exc.code}; no retry or access bypass attempted"
+            elif isinstance(getattr(exc, "reason", exc), ssl.SSLCertVerificationError):
+                message = "TLS certificate verification failed; configure a trusted CA bundle with SSL_CERT_FILE"
+            elif isinstance(exc, (URLError, OSError)):
+                message = "Network request failed or timed out; inspect this source manually"
+            else:
+                message = str(exc)
+            source["errors"].append(message)
+            break
+    return jobs
+
+
+def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None, *, workers=4):
+    """Return deduplicated leads; source count means newly retained unique leads.
+
+    Up to ``workers`` boards are collected concurrently (1–8; default 4).
+    Results and duplicate provenance retain input-board/page order regardless of
+    completion order. Custom fetchers must be thread-safe, or use workers=1.
+    """
     if not isinstance(boards, list) or not 1 <= len(boards) <= 100:
         raise ValueError("boards must be a list of 1–100 board objects")
     if not 1 <= timeout <= 60 or not 1 <= max_pages <= 20:
         raise ValueError("timeout must be 1–60 seconds and max_pages 1–20")
+    if type(workers) is not int or not 1 <= workers <= 8:
+        raise ValueError("workers must be an integer from 1 to 8")
     checked = timestamp()
     terms = [term.strip().casefold() for term in keywords if isinstance(term, str) and term.strip()]
     result = {"generated_at": checked, "keywords": terms, "jobs": [], "sources": []}
     seen_boards, seen_ids, seen_urls = set(), {}, {}
     fetcher = fetcher or fetch_json
+    tasks = []
     for raw_board in boards:
         source = {"provider": None, "board": None, "region": None, "status": "blocked",
                   "count": 0, "fetched_count": 0, "errors": [], "truncated": False,
@@ -237,73 +304,37 @@ def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None):
             continue
         seen_boards.add(board_key)
         source["status"] = "searched"
-        successful_pages, page_signatures = 0, set()
-        for page in range(max_pages if board["provider"] == "lever" else 1):
-            url = endpoint(board, page)
-            try:
-                payload = fetcher(url, timeout)
-                rows = payload if board["provider"] == "lever" else payload.get("jobs") if isinstance(payload, dict) else None
-                if not isinstance(rows, list):
-                    raise ValueError("Unexpected response: job list missing")
-                successful_pages += 1
-                source["fetched_count"] += len(rows)
-                signature = hashlib.sha256(json.dumps(rows, sort_keys=True).encode()).hexdigest()
-                repeated_page = bool(rows and signature in page_signatures)
-                if repeated_page:
-                    source.update(status="limited", truncated=True)
-                    source["errors"].append("Repeated page; stopped to avoid a pagination loop")
-                page_signatures.add(signature)
-                malformed = 0
-                for raw in rows:
-                    try:
-                        job = normalize(raw, board, url, checked)
-                    except (ValueError, TypeError):
-                        malformed += 1
-                        continue
-                    if job is None:
-                        continue
-                    link = canonical_link(job["source_url"])
-                    # Provider IDs identify the posting across a provider's boards.
-                    identity = (board["provider"], board["region"], job["id"].split(":", 3)[3])
-                    existing = seen_ids.get(identity) or seen_urls.get(link)
-                    if existing is not None:
-                        origin = job["discovered_via"][0]
-                        if origin not in existing["discovered_via"]:
-                            existing["discovered_via"].append(origin)
-                        seen_ids[identity], seen_urls[link] = existing, existing
-                        continue
-                    text = f"{job['title']} {job['description'] or ''}".casefold()
-                    if terms and not any(term in text for term in terms):
-                        continue
-                    seen_ids[identity], seen_urls[link] = job, job
-                    result["jobs"].append(job)
-                    source["count"] += 1
-                if malformed:
-                    source["status"] = "limited"
-                    source["errors"].append(f"Skipped {malformed} malformed job entries on page {page + 1}")
-                if board["provider"] == "greenhouse":
-                    meta = payload.get("meta")
-                    total = meta.get("total") if isinstance(meta, dict) else None
-                    if isinstance(total, int) and total > len(rows):
-                        source.update(status="limited", truncated=True)
-                        source["errors"].append("API returned fewer jobs than its reported total")
-                if repeated_page or board["provider"] != "lever" or len(rows) < PAGE_SIZE:
-                    break
-                if page + 1 == max_pages:
-                    source.update(status="limited", truncated=True)
-                    source["errors"].append("Page cap reached; more postings may exist")
-            except (HTTPError, URLError, OSError, ValueError) as exc:
-                source["status"] = "limited" if successful_pages else "blocked"
-                if isinstance(exc, HTTPError):
-                    message = f"HTTP {exc.code}; no retry or access bypass attempted"
-                elif isinstance(getattr(exc, "reason", exc), ssl.SSLCertVerificationError):
-                    message = "TLS certificate verification failed; configure a trusted CA bundle with SSL_CERT_FILE"
-                elif isinstance(exc, (URLError, OSError)):
-                    message = "Network request failed or timed out; inspect this source manually"
-                else:
-                    message = str(exc)
-                source["errors"].append(message)
-                break
+        tasks.append((board, source, checked, timeout, max_pages, fetcher))
+
+    def merge(task, jobs):
+        board, source = task[:2]
+        for job in jobs:
+            link = canonical_link(job["source_url"])
+            # Provider IDs identify the posting across a provider's boards.
+            identity = (board["provider"], board["region"], job["id"].split(":", 3)[3])
+            existing = seen_ids.get(identity) or seen_urls.get(link)
+            if existing is not None:
+                origin = job["discovered_via"][0]
+                if origin not in existing["discovered_via"]:
+                    existing["discovered_via"].append(origin)
+                seen_ids[identity], seen_urls[link] = existing, existing
+                continue
+            text = f"{job['title']} {job['description'] or ''}".casefold()
+            if terms and not any(term in text for term in terms):
+                continue
+            seen_ids[identity], seen_urls[link] = job, job
+            result["jobs"].append(job)
+            source["count"] += 1
+
+    if workers == 1 or len(tasks) < 2:
+        for task in tasks:
+            merge(task, collect_board(*task))
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(collect_board, *task) for task in tasks]
+            # Merge on the calling thread in input order, never completion order.
+            for task, future in zip(tasks, futures):
+                merge(task, future.result())
     return result
 
 
@@ -315,6 +346,7 @@ def main(argv=None):
     parser.add_argument("--keywords", nargs="+", default=[], help="Local OR substring filter on title and description")
     parser.add_argument("--timeout", type=int, default=15, help="Per-request seconds (1–60; default 15)")
     parser.add_argument("--max-pages", type=int, default=10, help="Lever page cap (1–20; 100 jobs/page)")
+    parser.add_argument("--workers", type=int, default=4, help="Concurrent boards (1–8; default 4; 1 for sequential)")
     args = parser.parse_args(argv)
     try:
         if (args.boards.resolve() == args.output.resolve()
@@ -323,7 +355,7 @@ def main(argv=None):
         if args.output.exists() and not args.overwrite:
             raise ValueError("Output already exists; use --overwrite to replace it")
         boards = json.loads(args.boards.read_text(encoding="utf-8"))
-        result = discover(boards, args.keywords, args.timeout, args.max_pages)
+        result = discover(boards, args.keywords, args.timeout, args.max_pages, workers=args.workers)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("w" if args.overwrite else "x", encoding="utf-8") as destination:
             destination.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")

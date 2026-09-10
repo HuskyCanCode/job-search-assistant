@@ -5,8 +5,8 @@
 1. Read the user's goals and any resume, preserving unknowns. Expand close and adjacent titles and choose country-relevant sources using [job-sources.md](job-sources.md).
 2. Execute the source plan with available live web search, browser, or supported connectors. LinkedIn and Indeed searches happen here through the host tools. Record actual queries and access limitations; indexed search is not a full platform search.
 3. Follow observed employer career links. For Greenhouse, Lever, and Ashby boards, optionally collect their published jobs using the script below. Keep normal web discovery running for other sources, including Workday and specialist boards.
-4. Inspect promising descriptions and the current application entry point, then confirm employer identity, role, location, restrictions, pay, and open status. Collection or a successful page request alone does not finish verification.
-5. Merge duplicate requisitions while preserving all observed discovery URLs. Compare professional evidence using the matching rubric. Keep uncertain leads separate and do not manufacture scores.
+4. Merge obvious duplicate leads by employer/requisition and canonical URL before inspecting descriptions or application entries. Preserve all observed origins. Inspect the strongest unique candidates, confirming employer identity, role, location, restrictions, pay and current open status. Collection or a successful page request alone does not finish verification.
+5. Reconcile any further duplicate requisitions established by full descriptions, retaining their discovery URLs. Compare professional evidence using the matching rubric. Keep uncertain leads separate and do not manufacture scores.
 6. Research employer identity, size, workforce trend and latest reported layoffs using [company-research.md](company-research.md). Target 20 distinct relevant employers by default, not20 postings from a few employers; keep missing metadata unknown.
 7. Populate schema version 2 from [report-format.md](report-format.md). Render the company overview with up to 3 recommended jobs each first, then jobs grouped by employer, evidence and source coverage. Add keyword queries and a conclusion explaining any shortfall and where coverage ended.
 
@@ -29,12 +29,14 @@ Create `private/boards.json` as a top-level list:
 These are placeholders, not working employer identifiers. Replace them with observed tokens and remove unused entries. Lever supports `"region": "eu"` only when the employer actually uses its European board; all others use `global`. Tokens permit letters, digits, underscores, and hyphens, up to 100 characters. Supply 1–100 boards per run; a small relevant set is usually enough.
 
 ```sh
-python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support --max-pages 3 --timeout 15
+python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support --workers 4 --max-pages 3 --timeout 15
 ```
 
 `--keywords` is a case-insensitive OR substring filter across title and description, applied locally after downloading. It is not a platform query, geographic filter, fit score, or guarantee of relevance. Omit it to retain all supported published records from those boards. Board identifiers are sent to the public API; resumes, contact details, and filter keywords are not sent by this script.
 
 Lever uses 100 jobs per page, with a default cap of 10 pages and a configurable cap of 1–20. Greenhouse and Ashby use their documented whole-board response. The collector notes pagination/response limitations, malformed entries, and partial failures. Requests have a per-request timeout of 1–60 seconds (default 15), a 16 MiB response cap, and no automatic retries; redirects and arbitrary endpoint hosts are refused. This is a per-request timeout, not a total run deadline.
+
+Independent employer boards run concurrently, with `--workers` from 1–8 (default 4). Use `--workers 1` for sequential collection or reduce concurrency when a provider requires it. Each board's pagination stays sequential; duplicate board entries are not fetched twice. Results and retained discovery origins are merged in input-board order, so response timing does not change which duplicate becomes the primary record. A failed board preserves useful results from the others. This speeds up waiting for independent requests; it is not a guarantee of faster end-to-end research, and it adds no API integration for the catalog job sites.
 
 Use a fresh output path, or `--overwrite` when deliberately replacing a previous collection. Exit code `0` means all supplied board checks completed as `searched`; `1` means output was saved with at least one limited/blocked source; `2` means an input/output error prevented normal completion. Always inspect `sources`, including when no jobs matched. Continue with usable leads from successful sources when another source fails.
 

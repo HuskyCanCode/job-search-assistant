@@ -5,10 +5,12 @@ import io
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError, URLError
 from urllib.request import Request
+from urllib.parse import parse_qs, urlsplit
 
 SPEC = importlib.util.spec_from_file_location(
     "discover_jobs", Path(__file__).resolve().parents[1] / "scripts" / "discover_jobs.py")
@@ -81,7 +83,9 @@ class DiscoveryTests(unittest.TestCase):
         second = gh(absolute_url="https://boards.greenhouse.io/another/jobs/1")
         third = {"id": "different", "title": "React Developer", "isListed": True,
                  "jobUrl": first["absolute_url"] + "?utm_source=other-board"}
-        fetcher = Mock(side_effect=[{"jobs": [first, first]}, {"jobs": [second]}, {"jobs": [third]}])
+        def fetcher(url, _timeout):
+            return {"jobs": {"acme": [first, first], "another": [second], "partner": [third]}[
+                urlsplit(url).path.split("/")[-2] if "greenhouse" in url else "partner"]}
         result = d.discover([{"provider": "greenhouse", "board": "acme"},
                             {"provider": "greenhouse", "board": "another"},
                             {"provider": "ashby", "board": "partner"}], fetcher=fetcher)
@@ -105,7 +109,7 @@ class DiscoveryTests(unittest.TestCase):
     def test_partial_failure_keeps_success_and_reports_access_block(self):
         fetcher = Mock(side_effect=[{"jobs": [gh()]}, HTTPError("https://api.lever.co", 429, "rate", {}, None)])
         result = d.discover([{"provider": "greenhouse", "board": "acme"},
-                            {"provider": "lever", "board": "other"}], fetcher=fetcher)
+                            {"provider": "lever", "board": "other"}], fetcher=fetcher, workers=1)
         self.assertEqual(len(result["jobs"]), 1)
         self.assertEqual(result["sources"][1]["status"], "blocked")
         self.assertIn("HTTP 429", result["sources"][1]["errors"][0])
@@ -139,7 +143,7 @@ class DiscoveryTests(unittest.TestCase):
     def test_malformed_payload_rows_and_prospect_posts(self):
         fetcher = Mock(side_effect=[{"jobs": [gh(), None, {}, gh(2, internal_job_id=None)]}, {"no_jobs": []}])
         result = d.discover([{"provider": "greenhouse", "board": "acme"},
-                            {"provider": "ashby", "board": "other"}], fetcher=fetcher)
+                            {"provider": "ashby", "board": "other"}], fetcher=fetcher, workers=1)
         self.assertEqual(len(result["jobs"]), 1)
         self.assertEqual(result["sources"][0]["status"], "limited")
         self.assertEqual(result["sources"][1]["status"], "blocked")
@@ -196,6 +200,183 @@ class DiscoveryTests(unittest.TestCase):
             with self.subTest(url=url):
                 self.assertIsNone(d.valid_link(url))
         self.assertEqual(d.valid_link("https://example.com:443/a%20b"), "https://example.com:443/a%20b")
+
+    def test_board_requests_overlap_without_exceeding_worker_bound(self):
+        # A barrier requires real simultaneous requests; no elapsed-time threshold.
+        for workers in (1, 2, 4, 8):
+            with self.subTest(workers=workers):
+                barrier = threading.Barrier(workers, timeout=5)
+                lock = threading.Lock()
+                active = peak = 0
+                calls = []
+
+                def fetcher(url, _timeout):
+                    nonlocal active, peak
+                    with lock:
+                        active += 1
+                        peak = max(peak, active)
+                        calls.append(url)
+                    try:
+                        barrier.wait()
+                        return {"jobs": []}
+                    finally:
+                        with lock:
+                            active -= 1
+
+                boards = [{"provider": "greenhouse", "board": f"board{i}"}
+                          for i in range(workers * 2)]
+                # Omitting the option exercises the default of four workers.
+                options = {} if workers == 4 else {"workers": workers}
+                result = d.discover(boards + [boards[0], None], fetcher=fetcher, **options)
+                self.assertEqual(peak, workers)
+                self.assertEqual(len(calls), len(boards))
+                self.assertEqual(len(set(calls)), len(boards))
+                self.assertEqual([source["status"] for source in result["sources"]],
+                                 ["searched"] * len(boards) + ["limited", "blocked"])
+
+    def test_parallel_completion_order_does_not_change_duplicate_winners(self):
+        boards = [{"provider": "greenhouse", "board": "first"},
+                  {"provider": "greenhouse", "board": "second"},
+                  {"provider": "ashby", "board": "partner"}]
+        first = gh(title="React original")
+        second = gh(title="Different duplicate", absolute_url="https://example.com/alternate/1")
+        third = {"id": "partner-id", "title": "Another duplicate", "isListed": True,
+                 "jobUrl": first["absolute_url"] + "?utm_source=partner"}
+        payloads = {"first": {"jobs": [first, gh(2, "Unrelated", content="No match")]},
+                    "second": {"jobs": [second, gh(3, "React later")]},
+                    "partner": {"jobs": [third]}}
+        completed = {name: threading.Event() for name in payloads}
+        order = []
+
+        def fetcher(url, _timeout, reverse=False):
+            token = urlsplit(url).path.split("/")[-2] if "greenhouse" in url else "partner"
+            dependency = {"first": "second", "second": "partner"}.get(token)
+            if reverse and dependency:
+                if not completed[dependency].wait(5):
+                    raise AssertionError("Independent boards did not overlap")
+            order.append(token)
+            completed[token].set()
+            return payloads[token]
+
+        with patch.object(d, "timestamp", return_value="2026-09-10T12:00:00+00:00"):
+            sequential = d.discover(boards, ["react"], fetcher=fetcher, workers=1)
+            order.clear()
+            for event in completed.values():
+                event.clear()
+            parallel = d.discover(boards, ["react"],
+                                  fetcher=lambda *args: fetcher(*args, reverse=True), workers=3)
+        self.assertEqual(order, ["partner", "second", "first"])
+        self.assertEqual(parallel, sequential)
+        self.assertEqual([job["title"] for job in parallel["jobs"]], ["React original", "React later"])
+        self.assertEqual([source["count"] for source in parallel["sources"]], [1, 1, 0])
+        self.assertEqual([origin["board"] for origin in parallel["jobs"][0]["discovered_via"]],
+                         ["first", "second", "partner"])
+
+    def test_parallel_errors_are_isolated_and_lever_pages_remain_sequential(self):
+        boards = [{"provider": "greenhouse", "board": "healthy"},
+                  {"provider": "lever", "board": "partial"},
+                  {"provider": "ashby", "board": "malformed"},
+                  {"provider": "greenhouse", "board": "rate-limited"}]
+        page_zero_finished = threading.Event()
+        calls = []
+        lock = threading.Lock()
+
+        def fetcher(url, _timeout):
+            with lock:
+                calls.append(url)
+            if "partial" in url:
+                page = int(parse_qs(urlsplit(url).query)["skip"][0])
+                if page == 0:
+                    page_zero_finished.set()
+                    return [lever(i) for i in range(d.PAGE_SIZE)]
+                self.assertTrue(page_zero_finished.is_set())
+                self.assertEqual(page, d.PAGE_SIZE)
+                raise URLError("offline")
+            if "rate-limited" in url:
+                raise HTTPError(url, 429, "rate", {}, None)
+            if "malformed" in url:
+                return {"not-jobs": []}
+            return {"jobs": [gh()]}
+
+        result = d.discover(boards, fetcher=fetcher)
+        self.assertEqual(len(result["jobs"]), d.PAGE_SIZE + 1)
+        self.assertEqual([source["status"] for source in result["sources"]],
+                         ["searched", "limited", "blocked", "blocked"])
+        self.assertEqual([source["count"] for source in result["sources"]], [1, d.PAGE_SIZE, 0, 0])
+        self.assertEqual([source["fetched_count"] for source in result["sources"]],
+                         [1, d.PAGE_SIZE, 0, 0])
+        self.assertIn("HTTP 429", result["sources"][3]["errors"][0])
+        self.assertEqual(len(calls), 5)  # No retries after any failure.
+
+    def test_lever_full_pages_are_sequential_within_parallel_boards(self):
+        barrier = threading.Barrier(2, timeout=5)
+        lock = threading.Lock()
+        active_boards = set()
+        offsets = {"one": [], "two": []}
+
+        def fetcher(url, _timeout):
+            parsed = urlsplit(url)
+            token = parsed.path.rsplit("/", 1)[1]
+            offset = int(parse_qs(parsed.query)["skip"][0])
+            with lock:
+                self.assertNotIn(token, active_boards)
+                active_boards.add(token)
+                offsets[token].append(offset)
+            try:
+                barrier.wait()
+                # Different provider IDs preserve both boards' records.
+                return [lever(f"{token}-{i}") for i in range(offset, offset + (d.PAGE_SIZE if offset == 0 else 1))]
+            finally:
+                with lock:
+                    active_boards.remove(token)
+
+        result = d.discover([{"provider": "lever", "board": token} for token in offsets],
+                            fetcher=fetcher, workers=2)
+        self.assertEqual(offsets, {"one": [0, d.PAGE_SIZE], "two": [0, d.PAGE_SIZE]})
+        self.assertEqual(len(result["jobs"]), (d.PAGE_SIZE + 1) * 2)
+        self.assertTrue(all(source["status"] == "searched" for source in result["sources"]))
+
+    def test_sequential_mode_preserves_call_order_and_positional_fetcher(self):
+        calls = []
+
+        def fetcher(url, timeout):
+            calls.append((url, timeout, threading.get_ident()))
+            if "lever" in url:
+                offset = int(parse_qs(urlsplit(url).query)["skip"][0])
+                return [lever(i) for i in range(d.PAGE_SIZE)] if offset == 0 else []
+            return {"jobs": [gh()]}
+
+        boards = [{"provider": "lever", "board": "first"},
+                  {"provider": "greenhouse", "board": "second"}]
+        result = d.discover(boards, (), 7, 3, fetcher, workers=1)
+        self.assertEqual([url for url, _, _ in calls],
+                         [d.endpoint(d.validate_board(boards[0]), page) for page in (0, 1)] +
+                         [d.endpoint(d.validate_board(boards[1]))])
+        self.assertTrue(all(timeout == 7 and thread == threading.get_ident()
+                            for _, timeout, thread in calls))
+        self.assertEqual([source["count"] for source in result["sources"]], [d.PAGE_SIZE, 1])
+
+    def test_invalid_workers_do_not_fetch(self):
+        fetcher = Mock()
+        for workers in (0, 9, -1, True, False, 1.5, "4", None):
+            with self.subTest(workers=workers), self.assertRaises(ValueError):
+                d.discover([{"provider": "greenhouse", "board": "acme"}],
+                           fetcher=fetcher, workers=workers)
+        fetcher.assert_not_called()
+
+    def test_cli_workers_forwarded_and_invalid_range_does_not_write(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            boards, output = Path(tmp) / "boards.json", Path(tmp) / "output.json"
+            boards.write_text('[{"provider":"greenhouse","board":"acme"}]')
+            args = ["--boards", str(boards), "--output", str(output)]
+            with patch.object(d, "discover", wraps=d.discover) as discover, \
+                    patch.object(d, "fetch_json", return_value={"jobs": []}), \
+                    patch("sys.stdout", io.StringIO()), patch("sys.stderr", io.StringIO()):
+                self.assertEqual(d.main(args + ["--workers", "2"]), 0)
+                self.assertEqual(discover.call_args.kwargs["workers"], 2)
+                output.unlink()
+                self.assertEqual(d.main(args + ["--workers", "9"]), 2)
+                self.assertFalse(output.exists())
 
     def test_cli_existing_output_requires_overwrite(self):
         with tempfile.TemporaryDirectory() as tmp:

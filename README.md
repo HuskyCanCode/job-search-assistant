@@ -6,8 +6,9 @@ A reusable agent skill that searches online jobs from a career goal or resume an
 
 - Refines a broad search into useful roles, filters, and reusable search queries.
 - Suggests close, adjacent, and stretch roles based on transferable experience.
-- Searches LinkedIn, Indeed, employer career pages, and relevant specialist, remote, regional, and public-sector sources using the host agent's live web tools.
-- Collects published leads from observed Greenhouse, Lever, and Ashby employer boards through documented public APIs.
+- Searches relevant sites from a default catalog of LinkedIn, Indeed, ZipRecruiter, Built In, Y Combinator Jobs, Wellfound, HiringCafe, SimplyHired, Lensa, and Teal, plus employer career pages and appropriate specialist sources, using the host agent's live web tools.
+- Speeds discovery with parallel query batches, early deduplication, shared employer research, and limited retries of blocked sources.
+- Collects published leads concurrently from observed Greenhouse, Lever, and Ashby employer boards through documented public APIs.
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
 - Reads a resume or detailed professional profile using available host tools.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
@@ -31,6 +32,8 @@ You can also specify sources:
 
 You do not have to name every board: the skill chooses sources based on the role and country. A request to find jobs runs the search in the current conversation. An older resume or missing recent projects changes the recommended level and evidence confidence; the skill still searches for suitable openings. Background searches require a separately requested schedule.
 
+Fast search is the default: relevant catalog sites are attempted in small parallel batches, duplicate leads are merged before detailed review, and one promising job per employer is verified before filling additional slots. Company facts are researched once per employer. The skill avoids repeating unchanged searches or blocked page visits. Verification and the 20-company target remain in place; actual runtime depends on source access and available evidence. Ask for a smaller shortlist or a time limit when you want a deliberately narrower first pass. See the [fast search workflow](references/search-strategy.md#fast-search-workflow).
+
 The target is 20 **companies**, not 20 links. Fewer than three suitable roles at a company is a valid result. If the search cannot substantiate 20 relevant employers, it reports the actual count and coverage limits rather than filling the table with duplicates, closed jobs or unsupported matches. A user-requested smaller scope overrides the default.
 
 Company “population trend” means employee/headcount growth or decline by default. Trends use comparable dated observations, usually over the latest available 12 months. Layoff entries distinguish announcement and effective dates; “no report found” describes only the sources and period checked, not proof that layoffs never occurred. See [company research guidance](references/company-research.md).
@@ -52,10 +55,10 @@ LinkedIn and other boards may limit public access. The skill can use indexed dis
 After observing the board identifier in an actual employer career link, save a JSON list to `private/boards.json` with entries such as `{"provider": "greenhouse", "board": "OBSERVED_TOKEN"}`. `OBSERVED_TOKEN` is a placeholder, not an employer to query. Supported providers are `greenhouse`, `lever`, and `ashby`; Lever also supports `"region": "eu"` for observed European boards.
 
 ```sh
-python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support
+python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support --workers 4
 ```
 
-The collector requires Python 3.10+ and network access, with no third-party packages or API key. Keywords filter downloaded public descriptions locally. Its output contains **leads**, source timestamps, and failures; the agent verifies company identity, the full posting, application availability, and candidate eligibility before turning leads into recommendations. It does not discover all employers or submit applications. See [live-discovery.md](references/live-discovery.md) for limits, output fields, and certificate troubleshooting.
+The collector requires Python 3.10+ and network access, with no third-party packages or API key. It uses four workers by default (configurable from 1–8); `--workers 1` runs sequentially. Keywords filter downloaded public descriptions locally. Its output contains **leads**, source timestamps, and failures; the agent verifies company identity, the full posting, application availability, and candidate eligibility before turning leads into recommendations. It does not discover all employers or submit applications. See [live-discovery.md](references/live-discovery.md) for limits, output fields, and certificate troubleshooting.
 
 ## Try the report generator
 
