@@ -8,7 +8,7 @@ The scripts below are optional. Run their commands from the **repository root**.
 
 - Refines a broad search into useful roles, filters, and reusable search queries.
 - Suggests close, adjacent, and stretch roles based on transferable experience.
-- Uses supported search tools and permitted employer sources, with a catalog that distinguishes manual resources from conditional feeds and APIs.
+- Uses supported search tools and permitted employer sources, with a short catalog of conditional feeds and APIs. Restricted and unverified boards are excluded.
 - Speeds discovery with parallel query batches, early deduplication, shared employer research, and limited retries of blocked sources.
 - Can collect published leads concurrently from observed Greenhouse, Lever, and Ashby boards when the documented API and intended report use are permitted.
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
@@ -22,15 +22,15 @@ Job scores measure documented fit. The company rating averages the available fit
 
 ## Employer-first access
 
-LinkedIn, Indeed, SimplyHired and the catalog's other restricted or unverified websites remain manual resources. Automated collection is disabled by default, including targeted indexed queries that would collect their content indirectly. The skill uses supported search discovery within its allowed scope to find independent employer evidence, then checks openings through permitted career pages or documented APIs. Public visibility, low request volume and search-engine indexing do not establish permission to copy, process or retain content.
+Restricted and unverified job boards are removed from the active resource list, example prompts and recommendations, including manual alternatives. The [policy audit](../references/source-policy-audit.md) retains their names and official evidence so future changes do not accidentally restore them. The skill uses supported search discovery within its allowed scope to find independent employer evidence, then checks openings through permitted career pages or documented APIs. Public visibility, low request volume and search-engine indexing do not establish permission to copy, process or retain content.
 
 The skill does not scrape Google, Bing, DuckDuckGo or other consumer search results. Search API terms vary by product and plan, including rules for saved reports and conversation transcripts. Required attribution and application routes must survive report generation; employer links are preferred only when compatible with those conditions. Company research prioritizes permitted official reports, announcements, government notices and credible reporting. Missing data stays unknown.
 
-The [dated source-by-source audit](../references/source-policy-audit.md) links official policies and marks unresolved permissions. Provider/method decisions are established during setup and reused while current; no separate approval is needed for each permitted job check. Unavailable routes are skipped while the search continues through allowed sources. A provider's documented connector or feed is not automatically installed or covered by the included collector.
+Provider/method decisions are established during setup and reused while current; no separate approval is needed for each permitted job check. Unavailable routes are skipped while the search continues through allowed sources within the user's requested scope. A request limited to excluded sources does not authorize searching elsewhere. Finding a provider connector does not automatically restore an excluded source; adding one requires a deliberate policy revision and verified permission for the intended use.
 
 This preserves the 20-company target, up to three recommendations per company, resume matching, company context and tables. Source restrictions can change the vacancies found or prevent reaching the target; the report states that honestly. This reduces risk but cannot certify legal compliance for every employer, account or future policy change. See the [routing policy and catalog](../references/job-sources.md).
 
-The included public-API collector does **not** search LinkedIn or Indeed. Its built-in network requests are limited to supported public listing APIs; the host agent follows the skill's source policy separately. The skill is not a firewall over all host tools. See the [live discovery workflow](../references/live-discovery.md) for the distinction.
+The included public-API collector's network requests are limited to its three supported public listing APIs; the host agent follows the skill's source policy separately. The skill is not a firewall over all host tools. See the [live discovery workflow](../references/live-discovery.md) for the distinction.
 
 ## Public employer-board collection (optional advanced use)
 

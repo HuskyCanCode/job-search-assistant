@@ -2,7 +2,7 @@
 
 Fictional candidate: customer support and onboarding experience, HubSpot, Excel reporting, and team scheduling. Target: Toronto hybrid or remote within Canada, full-time, CAD 65,000+ base salary.
 
-These are suggested queries, not evidence of current vacancies. Execute them through an authorized search integration, then verify employer originals through permitted routes. Preserve only result data the provider permits retaining. Restricted job boards remain manual resources; do not target them through indexed queries or scrape consumer search-result pages. See the [source access policy](../references/job-sources.md) and [dated audit](../references/source-policy-audit.md). Record actual discovery and verification separately.
+These are suggested queries, not evidence of current vacancies. Execute them through an authorized search integration, then verify employer originals through permitted routes. Preserve only result data the provider permits retaining. Restricted and unverified boards are excluded from the source plan and recommendations; do not target them through indexed queries or scrape consumer search-result pages. See the [active source policy](../references/job-sources.md) and [dated audit](../references/source-policy-audit.md). Record actual discovery and verification separately.
 
 | Group | Keywords or roles | Why they fit | Example query |
 | --- | --- | --- | --- |

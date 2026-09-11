@@ -1,6 +1,6 @@
 # Company research for a job search
 
-Use this reference with [search-strategy.md](search-strategy.md), [resume-matching.md](resume-matching.md), and [report-format.md](report-format.md). Research live evidence through the permitted methods in [source-policy-audit.md](source-policy-audit.md) and [job-sources.md](job-sources.md#routing-rules); do not reuse old company facts without checking their dates and scope. Reuse the provider access/use decision established during source setup, without adding an approval or terms-review gate for every company. Skip unresolved routes and continue useful permitted research.
+Use this reference with [search-strategy.md](search-strategy.md), [resume-matching.md](resume-matching.md), and [report-format.md](report-format.md). Research live evidence through the active permitted methods in [source-policy-audit.md](source-policy-audit.md) and [job-sources.md](job-sources.md#choose-a-route); do not reuse old company facts without checking their dates and scope. Reuse the provider access/use decision established during source setup, without adding an approval or terms-review gate for every company. Skip excluded or unresolved routes and continue useful permitted research only within the user's existing source scope. If the user requested only an excluded source, explain the limitation instead of silently searching elsewhere.
 
 ## Company-first scope
 
@@ -15,9 +15,9 @@ Use this reference with [search-strategy.md](search-strategy.md), [resume-matchi
 
 Identify the official company website through permitted search or existing verified evidence, then read allowed employer sources and follow observed careers links. Confirm that the employer, brand, recruiting agency, ATS board and job posting refer to the same organization. A familiar ATS hostname alone does not establish identity or unrestricted reuse rights.
 
-Do not automatically retrieve LinkedIn company pages, member profiles, employee lists or job pages for identity, headcount or trend research. Restricted or unverified sources, including Indeed and Glassdoor, are manual by default. This includes browser automation, web-open tools, scripts, targeted collection through another search engine and third-party scraper routes, even with a logged-in account. Use a supported host search integration within its scope for independent employer discovery. An expressly authorized source integration is optional only when its actual data scope and reuse permissions cover this task and its use matches the user's choices.
+Do not retrieve LinkedIn company pages, member profiles, employee lists or job pages for identity, headcount or trend research. Sources excluded by [job-sources.md](job-sources.md), including Indeed and Glassdoor, are not fetched, targeted through another search engine, ingested or recommended as manual alternatives. This also applies to browser automation, web-open tools, scripts and third-party scraper routes, even with a logged-in account. Use a supported host search integration within its scope for independent employer discovery. A newly available or authorized integration does not reactivate an excluded source; source permission alone does not override the configured exclusions.
 
-Ignore incidental restricted snippets: do not quote, score, copy, reconstruct or derive company facts from them. Do not ingest Lensa content into AI outputs. A user-pasted copy is not a workaround. Where deep links are restricted, use only allowed homepage/manual-query guidance; this is the default for Glassdoor, Dice and US Welcome to the Jungle. Prefer independent employer evidence and report unknown facts when it is unavailable.
+Ignore incidental excluded or restricted snippets: do not quote, score, copy, reconstruct or derive company facts from them. Do not ingest Lensa content into AI outputs. A user-pasted copy is not a workaround. Excluded sources such as Glassdoor, Dice and Welcome to the Jungle receive no job or homepage/manual-query recommendations. Keep their names and policy links only in audit or skipped/exclusion explanations. Prefer independent employer evidence and report unknown facts when it is unavailable.
 
 Record the company display name, official website, relevant legal entity when identifiable, parent/brand relationship, and geography covered by the company facts. If a staffing agency recruits for an unnamed client, identify the agency and the undisclosed-client limitation; do not assign the agency's workforce facts to the client.
 
@@ -41,8 +41,8 @@ Use short paraphrases and keep source provenance for disputed facts where the ap
 Report an exact employee count, a stated range, or a labeled estimate according to the evidence. Include the source and as-of date, plus geography and entity scope. Preserve qualifiers such as full-time employees, employees and contractors, or consolidated group.
 
 - Do not convert an employee range into an exact count or midpoint presented as fact.
-- Prefer official workforce counts and reports. Do not automatically fetch LinkedIn employee-size bands or associated-profile counts. If such evidence is available through an expressly permitted route with suitable reuse rights, these are different metrics and neither is an official workforce count merely because LinkedIn displays it.
-- If permitted evidence consists only of associated-profile counts, label that metric, platform and access limits explicitly. Do not present it as total employees or as a measured official workforce trend.
+- Prefer official workforce counts and reports. Do not use employee-size bands or associated-profile counts from LinkedIn or another excluded source, including copies, snippets or integrations.
+- If an active permitted source provides only associated-profile counts, label that metric, platform and access limits explicitly. Do not present it as total employees or as a measured official workforce trend.
 - Funding, revenue, open jobs and office count do not establish employee count.
 - Use **Unknown — no usable workforce figure found** when evidence is missing. An access failure should say **Unknown — source access limited**, not zero employees.
 

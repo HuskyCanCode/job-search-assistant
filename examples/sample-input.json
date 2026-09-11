@@ -193,26 +193,26 @@
       "notes": "Fictional separately permitted discovery and retention scope, not a workaround for restricted sources. DEMO-102 overlaps another source; DEMO-103 is open in the scenario but has a candidate eligibility blocker."
     },
     {
-      "source": "LinkedIn (manual resource example)",
-      "url": "https://www.linkedin.com/",
+      "source": "Example Excluded Board (simulated)",
+      "url": "https://example.com/policy/excluded-board",
       "method": "platform_search",
       "query": "NOT EXECUTED: customer success, Toronto",
       "status": "skipped",
       "checked_at": "2026-09-10",
       "results_seen": null,
       "verified_open": 0,
-      "notes": "Automated collection disabled by default; homepage/manual guidance only. No platform search or targeted indexed collection ran."
+      "notes": "Fictional source is excluded from discovery and recommendations. The link is simulated policy evidence, not a job service recommendation. No request was made."
     },
     {
-      "source": "Indeed (manual resource example)",
-      "url": "https://www.indeed.com/",
+      "source": "Example Unverified Source (simulated)",
+      "url": "https://example.com/policy/unverified-source",
       "method": "platform_search",
       "query": "NOT EXECUTED: customer operations, Toronto",
       "status": "skipped",
       "checked_at": "2026-09-10",
       "results_seen": null,
       "verified_open": 0,
-      "notes": "Automated collection disabled by default; no provider-approved integration established in this example. No request was made."
+      "notes": "Fictional source lacks an established access and report-use scope. It is excluded; no request was made or manual job-service link recommended."
     },
     {
       "source": "Example North careers (simulated)",
