@@ -2,7 +2,7 @@
 
 ## Finished report
 
-Begin with a short date/scope/profile note and explain that match ratings measure documented fit, not hiring probability or employer reputation. The first table must be a company overview; target 20 distinct relevant companies unless the user specifies another scope. Link each company name to its verified official website; if the website cannot be established, keep it unlinked and mark it unknown.
+Begin with a short date/scope/profile note and explain that match ratings measure documented fit, not hiring probability or employer reputation. Apply [source-policy-audit.md](source-policy-audit.md) to every source and delivered format. The first table must be a company overview; target 20 distinct relevant companies unless the user specifies another scope. Link each company name to its verified official website where permitted; if the website cannot be established, keep it unlinked and mark it unknown.
 
 | Company / official website | Company match | Size / as of | Recent workforce trend | Latest publicly reported layoff | Up to 3 recommended jobs |
 | --- | --- | --- | --- | --- | --- |
@@ -26,7 +26,9 @@ The example URL is only a format illustration. Replace it with an observed posti
 | --- | --- | --- | --- | --- |
 | Distinct JD criterion | Rubric category | met / partial / absent / unknown | Specific source section or user statement | Action supported by the evidence |
 
-Provide evidence details for the strongest opportunities and any recommendation that hinges on a disputed or missing requirement. Keep inaccessible leads, known hard blockers, and closed postings separate from active recommendations. Show a short search log with queries/sources used, check date, coverage, and why the search stopped. Policy-disabled routes use `skipped`, while actual permitted requests that fail use `blocked`; permitted indexed discovery remains `web_search`/`limited`. Prefer independently verified employer facts and direct employer job links. Provider terms may restrict retaining result text, snippets or raw responses: preserve only allowed attribution and note any resulting evidence limits. Do not evade retention restrictions by copying those responses into this schema or a checkpoint. If zero active matches remain, report zero and suggest specific changes to soft preferences; do not fabricate replacements.
+Provide evidence details for the strongest opportunities and any recommendation that hinges on a disputed or missing requirement. Keep permitted inaccessible leads, known hard blockers, and closed postings separate from active recommendations. Show a short search log with queries/sources used, check date, coverage, and why the search stopped. Policy-disabled routes use `skipped`, while actual permitted requests that fail use `blocked`. Independent host discovery is `web_search`; do not imply that it searched a restricted board. Restricted/unverified boards are manual by default, including targeted collection through a search engine. Ignore incidental restricted snippets rather than quoting, scoring or reconstructing them, and do not ingest Lensa content into AI outputs. User-pasted copies are not an exception.
+
+Prefer independently verified employer facts and direct employer job links where compatible with their terms. Provider terms may restrict content use, deep links, retaining snippets or raw responses: preserve only allowed attribution and note resulting evidence limits. Glassdoor, Dice and US Welcome to the Jungle default to permitted homepage/manual-query guidance outside the job table, not deep-linked job records. Do not evade restrictions by copying responses into this schema or a checkpoint. Preserve a permitted feed's mandatory source credit, original job links and application routes even when a different employer URL exists. If zero active matches remain, report zero and suggest specific changes to soft preferences; do not fabricate replacements.
 
 ## Repeatable helper
 
@@ -40,7 +42,7 @@ python3 scripts/build_report.py private/search-input.json --output private/job-r
 
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
-The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
+The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. It does not enforce source licenses, deep-link permission, required link attributes, credit placement, application routes or retention limits. Check that every delivered format can satisfy a source's conditions before supplying its material. If the helper cannot, use a suitable manually assembled report that preserves the same table/scoring contract, or omit that source and continue with compatible evidence. Do not silently drop required conditions or invent schema fields the helper rejects. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
 
 ## JSON versions and company fields
 
@@ -83,7 +85,7 @@ Do not supply a company score. The helper derives it from job evidence, and reje
 | id | nonempty string | Unique stable identifier, preferably original requisition ID |
 | company_id | nonempty string, required in version 2 | Reference to the parent company record; version 1 does not use this field |
 | title, company, location | nonempty strings | Verified values, or explicit Unknown where appropriate |
-| url | HTTP(S) URL | Direct posting URL; inaccessible leads may retain their discovered URL with unverified status |
+| url | HTTP(S) URL | Permitted direct posting URL, respecting required source/application routes; retain an inaccessible lead's URL only when linking and content use are allowed |
 | salary | string or null | Stated range, currency, and period; null when unknown |
 | posted_at | YYYY-MM-DD or null | Employer posting date, not crawl/check date |
 | checked_at | YYYY-MM-DD | Actual verification/check date |
@@ -93,18 +95,18 @@ Do not supply a company score. The helper derives it from job evidence, and reje
 | hard_constraints | array | Applicable material constraints, defined below; empty means eligibility was not established |
 | not_applicable_categories | object, optional | Category key to substantive exclusion reason; allowed only with complete JD, with no requirements in the excluded category |
 | notes | string, optional | Employment type, requisition/source detail, limitations, or candidate next-step context |
-| discovered_via | array, optional | Observed discovery links as `{source, url}` objects; retain all distinct origins when merging duplicate postings |
+| discovered_via | array, optional | Allowed observed discovery links as `{source, url}` objects; retain all permitted distinct origins and required attribution when merging duplicate postings |
 
-Each discovery source has a nonempty `source` name and an absolute HTTP(S) `url`. Keep the employer's preferred original posting as the job `url`, and observed board or search-result links in `discovered_via`. This is provenance, not proof of verification. The CSV appends `discovery_sources` and `discovery_urls` columns; the source coverage ledger is in Markdown.
+Each discovery source has a nonempty `source` name and an absolute HTTP(S) `url`. Keep the employer's preferred original posting as the job `url` only where compatible with applicable source terms, and allowed board or search-result links in `discovered_via`. Never replace a required feed job link or application route without preserving the obligation. This is provenance, not proof of verification or permission. If a job cannot be represented with permitted content and its required direct link, omit that job record; add permissible homepage/manual-query guidance separately rather than passing a homepage off as a vacancy. The CSV appends `discovery_sources` and `discovery_urls` columns; the source coverage ledger is in Markdown. Assess each output's attribution requirements separately.
 
 ## Source coverage fields
 
-Each `search_sources` entry represents one actual source/query/method check. Multiple queries or a platform attempt followed by indexed fallback can have separate entries. The fields are required for each entry; the array itself stays optional for older input files and comparisons without discovery.
+Each `search_sources` entry represents one actual source/query/method check, or an explicitly skipped route. Multiple permitted queries or a failed route followed by a separate permitted employer search can have separate entries. Do not target a restricted board through another engine as a fallback. The fields are required for each entry; the array itself stays optional for older input files and comparisons without discovery.
 
 | Field | Type / meaning |
 | --- | --- |
 | source | Nonempty source name, including employer/board where relevant |
-| url | Observed HTTP(S) search URL, source entry point, or public API request URL |
+| url | Permitted observed HTTP(S) search URL, source entry point, or public API request URL; use an allowed homepage for skipped/manual routes where deep linking is restricted |
 | method | `platform_search`, `web_search`, `employer_site`, or `public_api` |
 | query | Exact query/filter description or API request; for skipped sources describe the intended query |
 | status | `searched`, `limited`, `blocked`, or `skipped`, as defined in the search strategy |
@@ -113,7 +115,7 @@ Each `search_sources` entry represents one actual source/query/method check. Mul
 | verified_open | Nonnegative integer count of those candidates subsequently verified open; at most results_seen when known |
 | notes | Limits, filter details, pages inspected, and context; must be nonempty for limited/blocked/skipped checks |
 
-`searched` and `limited` checks require an observed count (possibly zero). `blocked` and `skipped` require `results_seen: null` and `verified_open: 0`; explain why availability remains unknown. A successful query returning no candidates is different from a blocked source. Indexed-only board discovery is `web_search` with `limited` coverage.
+`searched` and `limited` checks require an observed count (possibly zero). `blocked` and `skipped` require `results_seen: null` and `verified_open: 0`; explain why availability remains unknown. A successful query returning no candidates is different from a blocked source. Use `web_search` for actual permitted host searches and `limited` where coverage was partial; do not count ignored restricted snippets as inspected jobs or board coverage. Record a source permission decision once and reuse it rather than repeating an approval or review for each job.
 
 Counts may overlap across checks because one requisition can appear on several boards. Do not sum them into a unique job count. The helper separately counts unique job records supplied and those marked open, including any with candidate eligibility blockers. The researcher must deduplicate requisitions before rendering; validation only prevents duplicate record IDs. Source counts may include inspected jobs not retained in the shortlist. A collector's retrieved count is not its verified-open count; see [live-discovery.md](live-discovery.md).
 
@@ -167,7 +169,7 @@ Report all material issues even when another rule controls the label. For exampl
 
 ## Company recommendations and rating
 
-For each company, use the existing job priority order to select up to 3 open jobs with complete descriptions and no confirmed unmet hard constraints. Unknown constraints remain visible and require confirmation. Unverified, closed, incomplete-description and blocked jobs stay in the detailed company tables but cannot appear in the recommended top3 or contribute to its rating.
+For each company, use the existing job priority order to select up to 3 open jobs with complete permitted descriptions and no confirmed unmet hard constraints. Unknown constraints remain visible and require confirmation. Permitted unverified, closed, incomplete-description and blocked jobs stay in the detailed company tables but cannot appear in the recommended top3 or contribute to its rating. Restricted source material is omitted, not given a provisional score.
 
 The company match rating is the arithmetic mean of available job-fit scores among those recommendations. Show component job IDs, how many recommendations were scored, and their mean evidence coverage. No scored recommendations, including a search without a resume/profile, means N/A. Fewer than 3 scored recommendations, any provisional job score, unknown eligibility, or an unscored recommended job makes the company rating provisional. A small sample is a limitation, not a reason to invent additional jobs.
 

@@ -188,9 +188,9 @@ companies, compare transferable skills, and flag location or eligibility restric
 
 ```text
 Use $job-search-assistant. Find junior frontend and software support jobs in New York,
-United States, with on-site or hybrid work. Include permitted indexed discovery for
-LinkedIn, Indeed and Wellfound, then verify original employer postings. Show which
-sources were searched or limited, and keep restricted direct automation disabled.
+United States, with on-site or hybrid work. Find original employer postings through
+permitted sources. Include LinkedIn, Indeed and Wellfound as manual resources with
+reusable search terms. Show actual source coverage and any skipped automation.
 ```
 
 A search runs when requested in the conversation. Background repetition requires a separately requested schedule and a host that supports scheduling; installing the skill alone does not start recurring searches.
@@ -205,5 +205,5 @@ A search runs when requested in the conversation. Background repetition requires
 | Only a plan is returned | Check whether a permitted live-search and verification route is available. Without one, current openings cannot be verified; you can still compare supplied job descriptions. |
 | Ratings show N/A | Supply enough professional evidence for matching and a complete, verifiable job description. Do not ask the skill to guess a score. |
 | Fewer than 20 companies appear | Read the search limits. Broaden role titles, locations or other preferences you are willing to change; keep firm constraints intact. |
-| A LinkedIn-only listing cannot be verified | Review it manually or ask for an equivalent employer posting. Restricted direct access stays disabled. |
+| LinkedIn, Indeed or another board is marked manual | Use its permitted homepage guidance yourself. The skill can look for independent employer postings; it does not collect restricted board content through another search engine. See the [policy audit](../references/source-policy-audit.md). |
 | A formerly open job has closed | Ask for a fresh check and replacement openings; an earlier check is not a guarantee of current availability. |

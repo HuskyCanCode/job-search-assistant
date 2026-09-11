@@ -67,10 +67,12 @@ Unique job records in this report: 9; recorded open: 7 (including any eligibilit
 
 | Source / method | Query or API request | Status | Checked | Results seen | Verified open | Notes |
 | --- | --- | --- | --- | ---: | ---: | --- |
-| [LinkedIn \(simulated\)](<https://example.com/demo-linkedin-search>)<br>web\_search | SIMULATED: site:linkedin\.com/jobs/view customer success Toronto | limited | 2026\-09\-10 | 3 | 2 | Fictional indexed\-only coverage: DEMO\-101 and DEMO\-102 verified in the scenario; DEMO\-104 remains inaccessible\. No real search was run\. |
-| [Indeed \(simulated platform attempt\)](<https://example.com/demo-indeed-search>)<br>platform\_search | SIMULATED: customer operations, Toronto | blocked | 2026\-09\-10 | Unknown | 0 | Fictional access failure, not evidence of zero vacancies\. |
-| [Indeed \(simulated indexed fallback\)](<https://example.com/demo-indeed-indexed>)<br>web\_search | SIMULATED: site:indeed\.com client onboarding Canada | limited | 2026\-09\-10 | 2 | 2 | Fictional results: DEMO\-102 overlaps another source; DEMO\-103 is open in the scenario but has a candidate eligibility blocker\. |
-| [Example North careers \(simulated\)](<https://example.com/companies/north/careers>)<br>employer\_site | SIMULATED: inspect DEMO\-101, DEMO\-105, DEMO\-106 and DEMO\-107 descriptions and application entry points | searched | 2026\-09\-10 | 4 | 4 | Fictional verification: four open eligible requisitions at one company, but recommend at most three\. DEMO\-101 overlaps LinkedIn; do not sum source counts\. |
+| [Example Discovery \(simulated\)](<https://example.com/demo-discovery-search>)<br>web\_search | SIMULATED: customer success Toronto careers | limited | 2026\-09\-10 | 3 | 2 | Fictional provider with simulated permission for search and saved attribution\. DEMO\-101 and DEMO\-102 verified in the scenario; DEMO\-104 remains inaccessible\. No real search was run\. |
+| [Example Board \(simulated platform attempt\)](<https://example.com/demo-board-search>)<br>platform\_search | SIMULATED: customer operations, Toronto | blocked | 2026\-09\-10 | Unknown | 0 | Fictional permitted integration suffered an access failure; no bypass attempted\. This is not evidence of zero vacancies\. |
+| [Example Board \(simulated permitted indexed route\)](<https://example.com/demo-board-indexed>)<br>web\_search | SIMULATED: client onboarding Canada careers | limited | 2026\-09\-10 | 2 | 2 | Fictional separately permitted discovery and retention scope, not a workaround for restricted sources\. DEMO\-102 overlaps another source; DEMO\-103 is open in the scenario but has a candidate eligibility blocker\. |
+| [LinkedIn \(manual resource example\)](<https://www.linkedin.com/>)<br>platform\_search | NOT EXECUTED: customer success, Toronto | skipped | 2026\-09\-10 | Unknown | 0 | Automated collection disabled by default; homepage/manual guidance only\. No platform search or targeted indexed collection ran\. |
+| [Indeed \(manual resource example\)](<https://www.indeed.com/>)<br>platform\_search | NOT EXECUTED: customer operations, Toronto | skipped | 2026\-09\-10 | Unknown | 0 | Automated collection disabled by default; no provider\-approved integration established in this example\. No request was made\. |
+| [Example North careers \(simulated\)](<https://example.com/companies/north/careers>)<br>employer\_site | SIMULATED: inspect DEMO\-101, DEMO\-105, DEMO\-106 and DEMO\-107 descriptions and application entry points | searched | 2026\-09\-10 | 4 | 4 | Fictional verification: four open eligible requisitions at one company, but recommend at most three\. DEMO\-101 overlaps Example Discovery; do not sum source counts\. |
 | [Example Freight careers \(simulated\)](<https://example.com/companies/freight/careers>)<br>employer\_site | SIMULATED: inspect DEMO\-102 and DEMO\-108 descriptions and application availability | searched | 2026\-09\-10 | 2 | 2 | Fictional open jobs\. DEMO\-102 has unknown attendance eligibility; DEMO\-108 explicitly matches hybrid\. DEMO\-102 overlaps other sources\. |
 | [Example Unverified careers \(simulated\)](<https://example.com/jobs/demo-109>)<br>employer\_site | SIMULATED: inspect DEMO\-109 status | searched | 2026\-09\-10 | 1 | 0 | Fictional posting explicitly closed; not recommended\. DEMO\-104 remains an inaccessible lead from a different requisition\. |
 
@@ -174,7 +176,7 @@ Researcher notes: Fictional JD employment type: full\-time\. Emphasize onboardin
 
 | Discovery source | Observed link |
 | --- | --- |
-| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-101>) |
+| Example Discovery \(simulated\) | [Discovery link](<https://example.com/demo-discovery/demo-101>) |
 | Example North careers \(simulated\) | [Discovery link](<https://example.com/jobs/demo-101>) |
 
 | Category | JD requirement | Assessment | JD / résumé evidence |
@@ -297,8 +299,8 @@ Researcher notes: Fictional JD employment type: full\-time\. Clarify on\-site ex
 
 | Discovery source | Observed link |
 | --- | --- |
-| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-102>) |
-| Indeed \(simulated\) | [Discovery link](<https://example.com/demo-indeed/demo-102>) |
+| Example Discovery \(simulated\) | [Discovery link](<https://example.com/demo-discovery/demo-102>) |
+| Example Board \(simulated\) | [Discovery link](<https://example.com/demo-board/demo-102>) |
 
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
@@ -338,7 +340,7 @@ Researcher notes: Fictional JD employment type: full\-time\. High documented fit
 
 | Discovery source | Observed link |
 | --- | --- |
-| Indeed \(simulated\) | [Discovery link](<https://example.com/demo-indeed/demo-103>) |
+| Example Board \(simulated\) | [Discovery link](<https://example.com/demo-board/demo-103>) |
 
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |
@@ -377,7 +379,7 @@ Researcher notes: Demonstrates an inaccessible discovery lead; details and open 
 
 | Discovery source | Observed link |
 | --- | --- |
-| LinkedIn \(simulated\) | [Discovery link](<https://example.com/demo-linkedin/demo-104>) |
+| Example Discovery \(simulated\) | [Discovery link](<https://example.com/demo-discovery/demo-104>) |
 
 | Category | JD requirement | Assessment | JD / résumé evidence |
 | --- | --- | --- | --- |

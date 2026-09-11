@@ -8,9 +8,9 @@ The scripts below are optional. Run their commands from the **repository root**.
 
 - Refines a broad search into useful roles, filters, and reusable search queries.
 - Suggests close, adjacent, and stretch roles based on transferable experience.
-- Uses authorized search tools and employer sources, with a discovery catalog covering LinkedIn, Indeed, ZipRecruiter, Built In, Y Combinator Jobs, Wellfound, HiringCafe, SimplyHired, Lensa, and Teal through permitted routes.
+- Uses supported search tools and permitted employer sources, with a catalog that distinguishes manual resources from conditional feeds and APIs.
 - Speeds discovery with parallel query batches, early deduplication, shared employer research, and limited retries of blocked sources.
-- Collects published leads concurrently from observed Greenhouse, Lever, and Ashby employer boards through documented public APIs.
+- Can collect published leads concurrently from observed Greenhouse, Lever, and Ashby boards when the documented API and intended report use are permitted.
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
 - Reads a resume or detailed professional profile using available host tools.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
@@ -22,17 +22,19 @@ Job scores measure documented fit. The company rating averages the available fit
 
 ## Employer-first access
 
-Direct automated LinkedIn job, company and member browsing is disabled in the skill workflow. It uses authorized search discovery to find employers, then verifies openings through permitted employer career pages or documented public job APIs. LinkedIn-only leads can remain for manual review; they are not represented as verified openings. The same permission checks apply to other boards. Public visibility and search-engine indexing do not themselves authorize automated access or copying.
+LinkedIn, Indeed, SimplyHired and the catalog's other restricted or unverified websites remain manual resources. Automated collection is disabled by default, including targeted indexed queries that would collect their content indirectly. The skill uses supported search discovery within its allowed scope to find independent employer evidence, then checks openings through permitted career pages or documented APIs. Public visibility, low request volume and search-engine indexing do not establish permission to copy, process or retain content.
 
-The skill does not replace LinkedIn automation with scraping Google results. It uses an authorized search integration under that provider's access and storage terms, keeps reports to concise job facts and comparisons, and prefers direct employer application links. Company size and workforce research prioritize official reports, announcements, government notices and credible reporting. Missing data stays unknown.
+The skill does not scrape Google, Bing, DuckDuckGo or other consumer search results. Search API terms vary by product and plan, including rules for saved reports and conversation transcripts. Required attribution and application routes must survive report generation; employer links are preferred only when compatible with those conditions. Company research prioritizes permitted official reports, announcements, government notices and credible reporting. Missing data stays unknown.
 
-This preserves the 20-company target, up to three recommendations per company, resume matching, company context and table exports. Source restrictions can change the actual vacancies found or prevent reaching the target; the report states that honestly. This is a risk-reduction strategy, not legal clearance. See the [source access policy and catalog](../references/job-sources.md).
+The [dated source-by-source audit](../references/source-policy-audit.md) links official policies and marks unresolved permissions. Provider/method decisions are established during setup and reused while current; no separate approval is needed for each permitted job check. Unavailable routes are skipped while the search continues through allowed sources. A provider's documented connector or feed is not automatically installed or covered by the included collector.
+
+This preserves the 20-company target, up to three recommendations per company, resume matching, company context and tables. Source restrictions can change the vacancies found or prevent reaching the target; the report states that honestly. This reduces risk but cannot certify legal compliance for every employer, account or future policy change. See the [routing policy and catalog](../references/job-sources.md).
 
 The included public-API collector does **not** search LinkedIn or Indeed. Its built-in network requests are limited to supported public listing APIs; the host agent follows the skill's source policy separately. The skill is not a firewall over all host tools. See the [live discovery workflow](../references/live-discovery.md) for the distinction.
 
 ## Public employer-board collection (optional advanced use)
 
-After observing the board identifier in an actual employer career link, save a JSON list to `private/boards.json` with entries such as `{"provider": "greenhouse", "board": "OBSERVED_TOKEN"}`. `OBSERVED_TOKEN` is a placeholder, not an employer to query. Supported providers are `greenhouse`, `lever`, and `ashby`; Lever also supports `"region": "eu"` for observed European boards.
+After establishing that the API access and saved-report use are permitted, observe the board identifier in an actual employer career link and save a JSON list to `private/boards.json` with entries such as `{"provider": "greenhouse", "board": "OBSERVED_TOKEN"}`. `OBSERVED_TOKEN` is a placeholder, not an employer to query. Supported providers are `greenhouse`, `lever`, and `ashby`; Lever also supports `"region": "eu"` for observed European boards. No-key access is a technical property, not a blanket reuse license.
 
 ```sh
 python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support --workers 4

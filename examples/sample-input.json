@@ -160,37 +160,59 @@
   ],
   "search_sources": [
     {
-      "source": "LinkedIn (simulated)",
-      "url": "https://example.com/demo-linkedin-search",
+      "source": "Example Discovery (simulated)",
+      "url": "https://example.com/demo-discovery-search",
       "method": "web_search",
-      "query": "SIMULATED: site:linkedin.com/jobs/view customer success Toronto",
+      "query": "SIMULATED: customer success Toronto careers",
       "status": "limited",
       "checked_at": "2026-09-10",
       "results_seen": 3,
       "verified_open": 2,
-      "notes": "Fictional indexed-only coverage: DEMO-101 and DEMO-102 verified in the scenario; DEMO-104 remains inaccessible. No real search was run."
+      "notes": "Fictional provider with simulated permission for search and saved attribution. DEMO-101 and DEMO-102 verified in the scenario; DEMO-104 remains inaccessible. No real search was run."
     },
     {
-      "source": "Indeed (simulated platform attempt)",
-      "url": "https://example.com/demo-indeed-search",
+      "source": "Example Board (simulated platform attempt)",
+      "url": "https://example.com/demo-board-search",
       "method": "platform_search",
       "query": "SIMULATED: customer operations, Toronto",
       "status": "blocked",
       "checked_at": "2026-09-10",
       "results_seen": null,
       "verified_open": 0,
-      "notes": "Fictional access failure, not evidence of zero vacancies."
+      "notes": "Fictional permitted integration suffered an access failure; no bypass attempted. This is not evidence of zero vacancies."
     },
     {
-      "source": "Indeed (simulated indexed fallback)",
-      "url": "https://example.com/demo-indeed-indexed",
+      "source": "Example Board (simulated permitted indexed route)",
+      "url": "https://example.com/demo-board-indexed",
       "method": "web_search",
-      "query": "SIMULATED: site:indeed.com client onboarding Canada",
+      "query": "SIMULATED: client onboarding Canada careers",
       "status": "limited",
       "checked_at": "2026-09-10",
       "results_seen": 2,
       "verified_open": 2,
-      "notes": "Fictional results: DEMO-102 overlaps another source; DEMO-103 is open in the scenario but has a candidate eligibility blocker."
+      "notes": "Fictional separately permitted discovery and retention scope, not a workaround for restricted sources. DEMO-102 overlaps another source; DEMO-103 is open in the scenario but has a candidate eligibility blocker."
+    },
+    {
+      "source": "LinkedIn (manual resource example)",
+      "url": "https://www.linkedin.com/",
+      "method": "platform_search",
+      "query": "NOT EXECUTED: customer success, Toronto",
+      "status": "skipped",
+      "checked_at": "2026-09-10",
+      "results_seen": null,
+      "verified_open": 0,
+      "notes": "Automated collection disabled by default; homepage/manual guidance only. No platform search or targeted indexed collection ran."
+    },
+    {
+      "source": "Indeed (manual resource example)",
+      "url": "https://www.indeed.com/",
+      "method": "platform_search",
+      "query": "NOT EXECUTED: customer operations, Toronto",
+      "status": "skipped",
+      "checked_at": "2026-09-10",
+      "results_seen": null,
+      "verified_open": 0,
+      "notes": "Automated collection disabled by default; no provider-approved integration established in this example. No request was made."
     },
     {
       "source": "Example North careers (simulated)",
@@ -201,7 +223,7 @@
       "checked_at": "2026-09-10",
       "results_seen": 4,
       "verified_open": 4,
-      "notes": "Fictional verification: four open eligible requisitions at one company, but recommend at most three. DEMO-101 overlaps LinkedIn; do not sum source counts."
+      "notes": "Fictional verification: four open eligible requisitions at one company, but recommend at most three. DEMO-101 overlaps Example Discovery; do not sum source counts."
     },
     {
       "source": "Example Freight careers (simulated)",
@@ -290,8 +312,8 @@
       "id": "DEMO-101",
       "discovered_via": [
         {
-          "source": "LinkedIn (simulated)",
-          "url": "https://example.com/demo-linkedin/demo-101"
+          "source": "Example Discovery (simulated)",
+          "url": "https://example.com/demo-discovery/demo-101"
         },
         {
           "source": "Example North careers (simulated)",
@@ -363,12 +385,12 @@
       "id": "DEMO-102",
       "discovered_via": [
         {
-          "source": "LinkedIn (simulated)",
-          "url": "https://example.com/demo-linkedin/demo-102"
+          "source": "Example Discovery (simulated)",
+          "url": "https://example.com/demo-discovery/demo-102"
         },
         {
-          "source": "Indeed (simulated)",
-          "url": "https://example.com/demo-indeed/demo-102"
+          "source": "Example Board (simulated)",
+          "url": "https://example.com/demo-board/demo-102"
         }
       ],
       "title": "Operations Coordinator",
@@ -431,8 +453,8 @@
       "id": "DEMO-103",
       "discovered_via": [
         {
-          "source": "Indeed (simulated)",
-          "url": "https://example.com/demo-indeed/demo-103"
+          "source": "Example Board (simulated)",
+          "url": "https://example.com/demo-board/demo-103"
         }
       ],
       "title": "Client Onboarding Associate",
@@ -453,8 +475,8 @@
       "id": "DEMO-104",
       "discovered_via": [
         {
-          "source": "LinkedIn (simulated)",
-          "url": "https://example.com/demo-linkedin/demo-104"
+          "source": "Example Discovery (simulated)",
+          "url": "https://example.com/demo-discovery/demo-104"
         }
       ],
       "title": "Customer Operations Associate",

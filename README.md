@@ -73,7 +73,7 @@ The skill does not submit applications or contact employers automatically.
 
 The target is **20 distinct companies**; fewer may qualify. Company ratings average the scored recommended jobs and measure resume fit, not hiring probability. Missing facts show **Unknown**; unsupported scores show **N/A**.
 
-Searches use permitted discovery tools and employer sources. Direct LinkedIn automation is disabled.
+Searches use permitted tools and employer sources. LinkedIn, Indeed and other restricted sites remain **manual resources**, with automated collection disabled by default. See the [source-by-source policy audit](references/source-policy-audit.md).
 
 ## Sample report preview
 
