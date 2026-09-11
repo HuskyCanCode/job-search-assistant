@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import io
 import json
 import re
 import sys
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.parse import quote, urlsplit
 
 
@@ -749,6 +751,20 @@ def render_csv(data):
     return output.getvalue()
 
 
+def render_html(data):
+    """Render a portable HTML report with the same validated evidence and scores."""
+    validate(data)
+    spec = importlib.util.spec_from_file_location(
+        "job_search_report_html", Path(__file__).with_name("render_html.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    report_api = SimpleNamespace(
+        assess=assess, ordered_jobs=ordered_jobs, company_assessments=company_assessments,
+        ordered_companies=ordered_companies, job_group=job_group,
+        company_fact_texts=company_fact_texts, LABELS=LABELS, WEIGHTS=WEIGHTS)
+    return module.render_html(data, report_api)
+
+
 def reject_duplicates(pairs):
     result = {}
     for key, value in pairs:
@@ -764,31 +780,41 @@ def main(argv=None):
     parser.add_argument("--output", "--markdown", required=True, dest="output", type=Path, help="Markdown report path")
     parser.add_argument("--csv", type=Path, help="Optional spreadsheet-safe CSV summary path")
     parser.add_argument("--companies-csv", type=Path, help="Optional company summary CSV path (schema version 2)")
+    parser.add_argument("--html", type=Path, help="Optional self-contained HTML report path")
     parser.add_argument("--overwrite", action="store_true", help="Allow replacing existing report files")
     args = parser.parse_args(argv)
     try:
         data = validate(json.loads(args.input.read_text(encoding="utf-8"), object_pairs_hook=reject_duplicates,
                                    parse_constant=lambda value: fail("JSON", "non-finite number " + value)))
-        destinations = [args.output] + ([args.csv] if args.csv else []) + ([args.companies_csv] if args.companies_csv else [])
-        paths = [args.input.resolve()] + [path.resolve() for path in destinations]
-        if len(set(paths)) != len(paths):
-            fail("output", "input and output paths must be distinct")
+        destinations = [path for path in (args.output, args.csv, args.companies_csv, args.html) if path is not None]
+        paths = [args.input] + destinations
+        for index, path in enumerate(paths):
+            for other in paths[index + 1:]:
+                if (path.resolve() == other.resolve()
+                        or (path.exists() and other.exists() and path.samefile(other))):
+                    fail("output", "input and output paths must be distinct, including file aliases")
+                if path.resolve() in other.resolve().parents or other.resolve() in path.resolve().parents:
+                    fail("output", "a report file cannot also be another file's parent directory")
         for path in destinations:
-            if path.exists() and not args.overwrite:
+            if (path.exists() or path.is_symlink()) and not args.overwrite:
                 fail("output", f"file exists: {path}; use --overwrite to replace it")
             if path.exists() and not path.is_file():
                 fail("output", f"not a regular file: {path}")
+            if any(parent.exists() and not parent.is_dir() for parent in path.parents):
+                fail("output", f"parent path is not a directory: {path}")
         reports = [(args.output, render_markdown(data))]
         if args.csv:
             reports.append((args.csv, render_csv(data)))
         if args.companies_csv:
             reports.append((args.companies_csv, render_companies_csv(data)))
+        if args.html:
+            reports.append((args.html, render_html(data)))
         for path, contents in reports:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(contents, encoding="utf-8", newline="")
         print(f"Wrote {len(data['jobs'])} job(s) to " + ", ".join(str(path) for path in destinations))
         return 0
-    except (ValidationError, json.JSONDecodeError, OSError, UnicodeError) as error:
+    except (ValueError, OSError) as error:
         print("Error: " + str(error), file=sys.stderr)
         return 2
 

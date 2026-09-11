@@ -100,7 +100,9 @@ Search effort shifts toward role and source combinations producing useful verifi
 
 ![Illustrated fictional report showing the company website, employee size, match rating, workforce trend, layoff context and recommended job links, with explanations of ratings and unknown values.](../assets/reading-report.svg)
 
-Start with companies that interest you, then read their detailed job rows. The [sample report preview](report-preview.md) shows the actual table layout.
+Start with companies that interest you, then read their detailed job rows. The [sample report preview](report-preview.md) shows the table layout and explains how to open the fictional HTML sample in your browser.
+
+In HTML, search by company, role or location and use **Show postings** to narrow the view. Open **Compare openings in a table** for a side-by-side summary, or expand a job's evidence to inspect the assessment. **Reset filters** shows everything again; **Print / save PDF** includes the whole report. These viewing controls do not change your search preferences or match scores.
 
 | What you see | How to use it |
 | --- | --- |
@@ -146,9 +148,11 @@ Explain why each one fits and which requirements I should confirm first.
 For files you can save:
 
 ```text
-Save this report as Markdown, plus separate company and job CSV files.
+Save this report as browsable HTML and Markdown, plus separate company and job CSV files.
 Keep my resume and personal report outside the distributable skill repository.
 ```
+
+Open the saved `.html` file in your browser to read the report locally. A file exported by the skill is not published online. For the [fictional HTML sample](../examples/sample-report.html), GitHub first shows its source: download the file, then open that download. See [preview help](report-preview.md) for the steps.
 
 ### 6. Open a job link and apply yourself
 
@@ -219,5 +223,6 @@ A search runs when requested in the conversation. Background repetition requires
 | Ratings show N/A | Supply enough professional evidence for matching and a complete, verifiable job description. Do not ask the skill to guess a score. |
 | Fewer than 20 companies appear | Read the search limits. Broaden role titles, locations or other preferences you are willing to change; keep firm constraints intact. |
 | Only five companies appear in an interim update | The search is still running toward your target. Pending company research is completed before the final report or explained as unavailable. |
+| GitHub shows HTML code instead of a report | Download the HTML file and open the saved `.html` in your browser. GitHub's source view is not the rendered preview. |
 | A requested job board is excluded | The skill explains the exclusion and can continue through permitted employer sources within your requested scope. It does not recommend the excluded service or collect its content through another engine. See the [policy audit](../references/source-policy-audit.md). |
 | A formerly open job has closed | Ask for a fresh check and replacement openings; an earlier check is not a guarantee of current availability. |

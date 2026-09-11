@@ -17,7 +17,7 @@ The scripts below are optional. Run their commands from the **repository root**.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
 - Shows the first five verified companies as an interim update, then continues toward 20 distinct relevant companies with up to three recommended jobs each.
 - Adds a company match rating, employee size, recent workforce trend, and the latest publicly reported layoff date. Workforce research starts after a company has a viable verified job; interim pending fields stay unknown.
-- Produces Markdown tables and optional CSV exports, with a source coverage table showing actual searches and access limitations.
+- Produces Markdown tables and optional HTML and CSV exports, with a source coverage table showing actual searches and access limitations.
 
 Job scores measure documented fit. The company rating averages the available fit scores among its up to three recommended verified openings. These are not employer reputation ratings or hiring probabilities. Size, headcount trend, and layoffs are separate context and do not automatically change the score.
 
@@ -69,13 +69,21 @@ The first command creates empty local state; it does not find jobs. After the ho
 The included Python helper calculates scores from structured assessments and generates company-first tables from schema version 2. Version 1 job-only inputs continue to work. Python 3.10+ is sufficient; no third-party packages, API key, or network connection are needed for this helper.
 
 ```sh
-python3 scripts/build_report.py examples/sample-input.json --output reports/sample-report.md --csv reports/sample-report.csv --companies-csv reports/sample-companies.csv
+python3 scripts/build_report.py examples/sample-input.json --output reports/sample-report.md --html reports/sample-report.html --csv reports/sample-report.csv --companies-csv reports/sample-companies.csv
 python3 -m unittest discover -s tests -v
 ```
 
 The agent first reads the resume, searches, verifies postings, and fills the JSON evidence. This separate report helper does not parse raw resumes or discover jobs. Include `search_sources` and per-job `discovered_via` for live searches. See the [input contract and report format](../references/report-format.md), [matching rubric](../references/resume-matching.md), and [search strategy](../references/search-strategy.md).
 
-The [sample report](../examples/sample-report.md) uses fictional companies, candidate information, and reserved example URLs. It demonstrates the output format; it is not a list of live vacancies. The [sample search plan](../examples/sample-search-plan.md) demonstrates keyword expansion and related-role suggestions.
+`--output` remains required for Markdown; `--html` adds a companion, and `--overwrite` permits intentional replacement of existing outputs. The HTML uses the same validated input, derived scores, ordering, source evidence and actual company shortfall as the other formats. Version 1 remains job-only and does not invent company research fields.
+
+The HTML is a self-contained local file with no external assets, automatic network requests or browser storage. Open it directly in a browser; company, job and evidence links visit their destinations only when you choose them. Exporting a report does not publish it, refresh vacancies or upload candidate information. Viewing an export does not update the search profile or record feedback; request refinements in the skill conversation. Source attribution, display and retention requirements still apply to the HTML; use a compatible rendering or omit incompatible source material as the report contract requires.
+
+Search matches company, title or location. **Show postings** selects all postings, recommendations, records needing review, or blocked/unverified/closed records; **Reset filters** restores the full view. Company summaries and headline totals remain based on the whole report, with a separate visible-record count. Expand **Compare openings in a table** for each company's side-by-side job summary; its rows follow the filters. Expand company research, job evidence, constraints, sources and methodology to inspect their details. **Print / save PDF** includes all records and comparison rows, even those hidden by a filter, and expands disclosures before restoring their previous state. Without JavaScript, filtering controls stay hidden, all records are visible and native disclosures still work. Version 1 uses one job comparison table and omits the company overview and **Recommended** filter.
+
+The fictional sample is available as [HTML](../examples/sample-report.html) and [Markdown](../examples/sample-report.md). It uses synthetic companies, candidate information and reserved example URLs; it is not a list of live vacancies or a completed 20-company search. GitHub shows HTML as source/download, so download it and open the saved file locally to see the rendered layout. The [sample search plan](../examples/sample-search-plan.md) demonstrates keyword expansion and related-role suggestions.
+
+To customize the appearance, edit the CSS or layout in [assets/report-template.html](../assets/report-template.html), preserving its named placeholders and the markup needed by its controls. [scripts/render_html.py](../scripts/render_html.py) fills the template; each generated report includes its styles and script locally. The sample report is rendered output, not the template source. Change evidence in the report input and regenerate all formats so scores and sources stay consistent.
 
 ## Report contents
 
@@ -107,11 +115,13 @@ SKILL.md                      Agent instructions
 agents/openai.yaml            Skill display metadata
 references/                   Search, matching, and report guidance
 scripts/build_report.py       Deterministic scoring and table export
+scripts/render_html.py        HTML rendering from validated report evidence
 scripts/discover_jobs.py      Public Greenhouse, Lever, and Ashby lead collection
 scripts/triage_jobs.py        Local structured review signals for collected leads
 scripts/search_state.py       Private query allocation, registry and explicit feedback
 examples/                     Fictional input and reports
 assets/                       Illustrated usage and report guides
+assets/report-template.html   Reusable HTML layout, local styles and controls
 docs/                         Detailed reader guides and examples
 tests/                        Scoring, collection, failure handling, and export checks
 ```

@@ -54,7 +54,7 @@ Read the company overview, check each job's requirements, and open the posting w
 
 > Focus on QA and application support. Keep my location preferences and show the five companies I should prioritize.
 
-The skill does not submit applications or contact employers automatically.
+For a browsable copy, ask: “Save this as an HTML report I can open locally.” The skill does not submit applications or contact employers automatically.
 
 <details open>
 <summary>See the illustrated walkthrough</summary>
@@ -79,7 +79,7 @@ Searches use permitted employer sources and documented APIs or feeds within thei
 
 ## Sample report preview
 
-[See the fictional sample tables](docs/report-preview.md) or the [illustrated report guide](assets/reading-report.svg).
+Download the [fictional HTML sample](examples/sample-report.html) and open it in your browser. GitHub shows the file's source; see [preview help and sample tables](docs/report-preview.md) or the [illustrated report guide](assets/reading-report.svg).
 
 ## More help
 

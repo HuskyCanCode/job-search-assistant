@@ -41,16 +41,18 @@ Prefer independently verified employer facts and direct employer job links from 
 Run from the skill repository root:
 
 ```sh
-python3 scripts/build_report.py private/search-input.json --output private/job-report.md --csv private/job-report.csv --companies-csv private/company-report.csv
+python3 scripts/build_report.py private/search-input.json --output private/job-report.md --html private/job-report.html --csv private/job-report.csv --companies-csv private/company-report.csv
 ```
 
-`--output` writes Markdown (`--markdown` is an alias); `--csv` writes an optional job summary, with company fields appended in version 2. `--companies-csv` writes a separate optional company summary and requires version 2. The helper uses Python 3.10+ and the standard library. It validates input, computes the rubric and renders tables without network requests. The agent must verify facts and classify evidence first. It cannot determine whether evidence is truthful or a job is actually open.
+`--output` is required and writes Markdown (`--markdown` is an alias). `--html` adds an optional browsable HTML report using the same validated evidence and derived scores; it supports version 2 company-first and version 1 job-only inputs. `--csv` writes an optional job summary, with company fields appended in version 2. `--companies-csv` writes a separate optional company summary and requires version 2. The helper uses Python 3.10+ and the standard library. It validates input, computes the rubric and renders tables without network requests. The agent must verify facts and classify evidence first. It cannot determine whether evidence is truthful or a job is actually open.
 
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
 The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. It does not enforce source licenses, deep-link permission, required link attributes, credit placement, application routes or retention limits. Check that every delivered format can satisfy a source's conditions before supplying its material. If the helper cannot, use a suitable manually assembled report that preserves the same table/scoring contract, or omit that source and continue with compatible evidence. Do not silently drop required conditions or invent schema fields the helper rejects. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
 
 Structured search profiles, collector triage/events, query-allocation observations, registry records and explicit feedback are separate workflow inputs/state. Do not paste them as new fields into the report schema or convert their labels into matching assessments. The host must supply permitted observations and actual verification evidence. Store progress files, final reports and local state only within applicable source retention rights; a local file or transcript is still a retained copy.
+
+Open a saved HTML report locally in a browser; creating it does not publish or upload it. The [fictional HTML sample](../examples/sample-report.html) demonstrates the layout, not verified vacancies or completion of the 20-company target. GitHub displays its source/download view; download the file to view the rendered report. See [advanced export guidance](../docs/advanced.md#try-the-report-generator) for browser behavior and [preview help](../docs/report-preview.md).
 
 ## JSON versions and company fields
 

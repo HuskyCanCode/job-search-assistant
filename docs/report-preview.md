@@ -2,6 +2,20 @@
 
 [Back to the README](../README.md) · [Usage guide](usage-guide.md)
 
+## Open the HTML sample
+
+The [fictional HTML report](../examples/sample-report.html) shows the full browser layout using the same four-company, Canada-based example as the [generated Markdown report](../examples/sample-report.md). It is separate from the shorter two-company illustration below. Both are fictional and leave the 20-company target visibly unmet.
+
+1. Open the HTML sample link. On GitHub, this opens the source/download page.
+2. Download the raw file and keep the `.html` extension.
+3. Open the downloaded file in your browser, using **Open File** if needed.
+4. Search by company, role or location, choose **Show postings**, and open **Compare openings in a table** or the detailed evidence. **Reset filters** returns to the full view.
+5. Use **Print / save PDF** for the whole report, including records hidden by your current filter.
+
+The report opens locally; no hosting or upload is needed. Filters only change the view, not scores or saved search preferences. Its company, job and evidence links are fictional examples. For your own results, ask: “Save my report as HTML I can open locally.” Keep personal reports private and share them only when their contents and source terms permit it.
+
+## Short table illustration
+
 **Fictional example — no live search was performed.** This shortened preview shows two companies and six jobs; a full search targets **20 different employers**. Every company, job, salary, score, research finding and `example.com` link below is illustrative. The links demonstrate where official company websites, job posts and evidence sources appear in a real report.
 
 Sample scope: United States, on-site, open to relocation. Illustrative check date: September 10, 2026. This preview assumes a fictional candidate profile, complete job descriptions, open applications and met eligibility constraints for all six roles. A real report establishes those facts before assigning recommendations.
