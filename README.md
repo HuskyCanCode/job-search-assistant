@@ -42,8 +42,7 @@ Attach your resume or paste a professional summary. A resume is optional. Change
 Use $job-search-assistant and my attached resume.
 Find on-site jobs in the United States; I am open to relocation.
 Suggest suitable roles and target 20 different companies.
-Show the company overview first, then jobs grouped by company,
-with direct job links, match scores and reusable search keywords.
+Include direct job links, match scores and reusable search keywords.
 ```
 
 Without a resume or detailed profile, remove “and my attached resume” and name the roles you want. The search can still run, with personal match ratings marked N/A.
@@ -54,7 +53,7 @@ Review the jobs and company details, check each job's requirements, and open the
 
 > Focus on QA and application support. Keep my location preferences and show the five companies I should prioritize.
 
-For compact job rows with expandable company details, ask: “Save this as an HTML report I can open locally.” The skill does not submit applications or contact employers automatically.
+Completed searches use the HTML report by default: recommended jobs first, with company details you can expand. A Markdown companion includes the full tables and search keywords. The skill does not submit applications or contact employers automatically.
 
 <details open>
 <summary>See the illustrated walkthrough</summary>

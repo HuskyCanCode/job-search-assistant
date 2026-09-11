@@ -17,7 +17,7 @@ The scripts below are optional. Run their commands from the **repository root**.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
 - Shows the first five verified companies as an interim update, then continues toward 20 distinct relevant companies with up to three recommended jobs each.
 - Adds a company match rating, employee size, recent workforce trend, and the latest publicly reported layoff date. Workforce research starts after a company has a viable verified job; interim pending fields stay unknown.
-- Produces Markdown tables and optional HTML and CSV exports, with a source coverage table showing actual searches and access limitations.
+- Delivers the compact HTML report by default for completed job searches, with a Markdown companion and optional CSV exports, including actual search coverage and access limitations.
 
 Job scores measure documented fit. The company rating averages the available fit scores among its up to three recommended verified openings. These are not employer reputation ratings or hiring probabilities. Size, headcount trend, and layoffs are separate context and do not automatically change the score.
 
@@ -75,7 +75,7 @@ python3 -m unittest discover -s tests -v
 
 The agent first reads the resume, searches, verifies postings, and fills the JSON evidence. This separate report helper does not parse raw resumes or discover jobs. Include `search_sources` and per-job `discovered_via` for live searches. See the [input contract and report format](../references/report-format.md), [matching rubric](../references/resume-matching.md), and [search strategy](../references/search-strategy.md).
 
-`--output` remains required for Markdown; `--html` adds a companion, and `--overwrite` permits intentional replacement of existing outputs. The HTML uses the same validated input, derived scores, source evidence and actual company shortfall as the other formats. It starts with compact grouped job rows and **View job** links, with company research, scope and evidence kept in expandable sections. Version 1 remains job-only and does not invent company research fields.
+The skill includes `--html` by default for completed job-search reports; users do not need to request it separately. The flag remains optional when calling the CLI directly, and `--output` remains required for the Markdown companion. Honor explicit format choices; role or keyword planning alone does not trigger report generation. Use `--overwrite` for intentional replacement of existing outputs. The HTML uses the same validated input, derived scores, source evidence and actual company shortfall as the other formats. It starts with compact grouped job rows and **View job** links, with company research, scope and evidence kept in expandable sections. Version 1 remains job-only and does not invent company research fields.
 
 The HTML is a self-contained local file with no external assets, automatic network requests or browser storage. Open it directly in a browser; company, job and evidence links visit their destinations only when you choose them. Exporting a report does not publish it, refresh vacancies or upload candidate information. Viewing an export does not update the search profile or record feedback; request refinements in the skill conversation. Source attribution, display and retention requirements still apply to the HTML; use a compatible rendering or omit incompatible source material as the report contract requires.
 

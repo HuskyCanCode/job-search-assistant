@@ -79,13 +79,13 @@ Find jobs in the United States. I prefer on-site work and am open to relocation.
 Suggest suitable roles based on my experience, including related job titles.
 I am looking for full-time work; salary is flexible.
 
-Target 20 different companies. Show the company overview first, with:
+Target 20 different companies. Include a company overview with:
 - Each company name linked to its official website
 - Company size and a resume-based match rating
 - Recent workforce growth or decline and the latest reported layoff
 - Up to three recommended job links per company
 
-Then show job details grouped by company, with resume matches, evidence coverage,
+Show job details grouped by company, with resume matches, evidence coverage,
 eligibility, gaps and application priority. Include reusable search keywords.
 Use permitted search tools and employer sources, and explain missing information
 or any shortfall against the company target.
@@ -100,7 +100,7 @@ Search effort shifts toward role and source combinations producing useful verifi
 
 ![Illustrated fictional report showing the company website, employee size, match rating, workforce trend, layoff context and recommended job links, with explanations of ratings and unknown values.](../assets/reading-report.svg)
 
-Markdown starts with the company overview. HTML opens with compact recommended job rows and **View job** links, with company research and evidence available to expand. The [sample report preview](report-preview.md) explains how to open the fictional HTML sample in your browser.
+Completed job searches include the local HTML report automatically. It opens with compact recommended job rows and **View job** links, with company research and evidence available to expand; the Markdown companion starts with the company overview. Explicit format requests take precedence, and role or keyword suggestions alone do not trigger a report. The [sample report preview](report-preview.md) explains how to open the fictional HTML sample in your browser.
 
 Search by company, role or location, or choose **All postings** to see other records. **Reset** returns to recommendations when available; otherwise all records are the default. Expand **Why this match / details** to inspect an assessment. **Print** includes the whole report. These viewing controls do not change your search preferences or match scores.
 
@@ -145,10 +145,10 @@ From this report, show only the five companies I should prioritize.
 Explain why each one fits and which requirements I should confirm first.
 ```
 
-For files you can save:
+The HTML report is already included. For additional spreadsheet files:
 
 ```text
-Save this report as browsable HTML and Markdown, plus separate company and job CSV files.
+Also export separate company and job CSV files from this report.
 Keep my resume and personal report outside the distributable skill repository.
 ```
 
@@ -183,7 +183,7 @@ I have not provided my background, so keep personal and company fit ratings N/A.
 ```text
 Use $job-search-assistant and my attached resume. Suggest close, adjacent and stretch
 roles, then search for suitable openings in the United States. I am open to on-site
-work and relocation. Target 20 qualifying employers and show the company-first report.
+work and relocation. Target 20 qualifying employers and group the jobs by company.
 ```
 
 **Explore roles before searching**

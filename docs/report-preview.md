@@ -12,7 +12,7 @@ The [fictional HTML report](../examples/sample-report.html) opens with compact r
 4. Search by company, role or location, choose **All postings** for other records, or expand **Why this match / details**. **Reset** returns to recommendations when available, otherwise all records.
 5. Use **Print** for the whole report, including records hidden by your current filter; choose Save as PDF in the browser dialog for a PDF copy.
 
-The report opens locally; no hosting or upload is needed. Filters only change the view, not scores or saved search preferences. Its company, job and evidence links are fictional examples. For your own results, ask: “Save my report as HTML I can open locally.” Keep personal reports private and share them only when their contents and source terms permit it.
+The report opens locally; no hosting or upload is needed. Filters only change the view, not scores or saved search preferences. Its company, job and evidence links are fictional examples. Your own completed searches include this HTML format by default, with a Markdown companion. Keep personal reports private and share them only when their contents and source terms permit it.
 
 ## Short table illustration
 
