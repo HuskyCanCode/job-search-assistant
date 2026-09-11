@@ -1,6 +1,7 @@
 """Network-free behavior tests for public-board discovery."""
 
 import importlib.util
+from copy import deepcopy
 import io
 import json
 from pathlib import Path
@@ -30,6 +31,172 @@ def lever(job_id=1, **extra):
 
 
 class DiscoveryTests(unittest.TestCase):
+    def test_lever_multi_location_country_and_level_are_observed_not_inferred(self):
+        row = lever(country="US", categories={"location": "New York", "allLocations": [
+            "New York", "London", "New York", "London"], "level": "Entry", "commitment": "Full-time",
+            "custom": {"private": "not needed"}})
+        result = d.discover([{"provider": "lever", "board": "acme"}], fetcher=lambda *_: [row])
+        job = result["jobs"][0]
+        self.assertEqual(job["location"], "New York")
+        self.assertEqual(job["locations"], [{"name": "New York", "country": "US"},
+                                             {"name": "London", "country": None}])
+        self.assertEqual(job["level"], "Entry")
+        self.assertEqual(job["employment_type"], "Full-time")
+        self.assertNotIn("custom", job["observed_metadata"]["categories"])
+        row["categories"]["allLocations"].append("Elsewhere")
+        self.assertNotIn("Elsewhere", job["observed_metadata"]["categories"]["allLocations"])
+
+    def test_ashby_location_addresses_preserve_each_country_and_unknowns(self):
+        row = {"id": "one", "title": "Support Engineer", "jobUrl": "https://jobs.ashbyhq.com/acme/one",
+               "location": "London", "workplaceType": "OnSite", "publishedAt": "2026-09-01T00:00:00Z",
+               "address": {"postalAddress": {"addressCountry": "GB", "addressLocality": "London"}},
+               "secondaryLocations": [
+                   {"location": "Austin", "address": {"addressCountry": "US", "addressRegion": "Texas"}},
+                   {"location": "Austin", "address": {"addressCountry": "US"}},
+                   {"location": "Tokyo", "address": {}},
+                   {"location": "No inferred country", "country": "US"}]}
+        result = d.discover([{"provider": "ashby", "board": "acme"}], fetcher=lambda *_: {"jobs": [row]},
+                            profile={"version": 1, "title_keywords": ["support"], "allowed_countries": ["US"]})
+        job = result["jobs"][0]
+        self.assertEqual(job["location"], "London")
+        self.assertEqual(job["locations"], [{"name": "London", "country": "GB"},
+            {"name": "Austin", "country": "US"}, {"name": "Tokyo", "country": None},
+            {"name": "No inferred country", "country": None}])
+        self.assertEqual(job["published_at"], row["publishedAt"])
+        self.assertIsNone(job["updated_at"])
+        self.assertEqual(job["triage"]["priority"], "review_first")
+        self.assertEqual(job["observed_metadata"]["address"], row["address"])
+
+    def test_greenhouse_updates_and_offices_are_not_publication_or_offered_locations(self):
+        row = gh(updated_at="2026-09-09T00:00:00Z", offices=[
+            {"id": 1, "name": "Americas", "child_ids": [2]},
+            {"id": 2, "name": "Austin", "parent_id": 1}], metadata=[{"private": "omit"}])
+        job = d.discover([{"provider": "greenhouse", "board": "acme"}],
+                         fetcher=lambda *_: {"jobs": [row]})["jobs"][0]
+        self.assertIsNone(job["published_at"])
+        self.assertEqual(job["updated_at"], row["updated_at"])
+        self.assertEqual(job["locations"], [{"name": "New York", "country": None}])
+        self.assertEqual(job["observed_metadata"]["offices"], row["offices"])
+        self.assertNotIn("metadata", job["observed_metadata"])
+        self.assertIsNone(job["level"])
+
+    def test_profile_keeps_conflicts_and_unknown_relevance_for_audit(self):
+        profile = {"version": 1, "title_keywords": ["support"], "excluded_title_phrases": ["senior"]}
+        original = deepcopy(profile)
+        result = d.discover([{"provider": "greenhouse", "board": "acme"}], profile=profile,
+                            fetcher=lambda *_: {"jobs": [gh(1, "Support Engineer"),
+                                gh(2, "Senior Support Engineer"), gh(3, "Technical Associate")]})
+        self.assertEqual([job["triage"]["priority"] for job in result["jobs"]],
+                         ["review_first", "conflict", "review"])
+        self.assertEqual(result["sources"][0]["count"], 3)
+        self.assertEqual(profile, original)
+        self.assertEqual(result["keywords"], [])
+
+    def test_invalid_profile_or_combined_keywords_or_callback_never_fetches(self):
+        fetcher = Mock()
+        for options in ({"profile": []}, {"profile": {"version": 2}},
+                        {"profile": {"version": 1, "title_keywords": "support"}},
+                        {"profile": {"version": 1}, "keywords": ["support"]},
+                        {"profile": {"version": 1}, "keywords": [""]},
+                        {"on_board": "not a function"}):
+            with self.subTest(options=options), self.assertRaises(ValueError):
+                d.discover([{"provider": "greenhouse", "board": "acme"}], fetcher=fetcher, **options)
+        fetcher.assert_not_called()
+
+    def test_duplicate_constraint_disagreement_stays_reviewable_in_either_order(self):
+        profile = {"version": 1, "title_keywords": ["support"], "allowed_countries": ["US"]}
+        for order in (("ca", "us"), ("us", "ca"), ("ca", "us", "ca-again")):
+            with self.subTest(order=order):
+                boards = [{"provider": "lever", "board": name} for name in order]
+
+                def fetcher(url, _timeout):
+                    name = urlsplit(url).path.rsplit("/", 1)[1]
+                    is_us = name == "us"
+                    return [lever(country="US" if is_us else "CA", workplaceType="onsite",
+                                  hostedUrl=f"https://jobs.lever.co/{name}/1",
+                                  categories={"location": "Austin" if is_us else "Toronto"})]
+
+                with patch.object(d, "timestamp", return_value="2026-09-10T12:00:00+00:00"):
+                    sequential = d.discover(boards, fetcher=fetcher, profile=profile, workers=1)
+                    parallel = d.discover(boards, fetcher=fetcher, profile=profile, workers=3)
+                self.assertEqual(parallel, sequential)
+                self.assertEqual(len(parallel["jobs"]), 1)
+                job = parallel["jobs"][0]
+                self.assertEqual(job["company_board"], order[0])
+                self.assertEqual(job["locations"][0]["country"], order[0].upper())
+                self.assertEqual(job["triage"]["priority"], "review")
+                self.assertEqual(sum("Duplicate source records disagree" in item
+                                     for item in job["triage"]["unknowns"]), 1)
+                self.assertEqual([origin["board"] for origin in job["discovered_via"]], list(order))
+                self.assertEqual([source["count"] for source in parallel["sources"]], [1] + [0] * (len(order) - 1))
+
+    def test_completed_board_events_unlock_a_slow_first_board_and_are_isolated(self):
+        slow_released = threading.Event()
+        events = []
+        calling_thread = threading.get_ident()
+        boards = [{"provider": "greenhouse", "board": "slow"},
+                  {"provider": "greenhouse", "board": "fast"}]
+
+        def fetcher(url, _timeout):
+            if "/slow/" in url:
+                if not slow_released.wait(5):
+                    raise AssertionError("Fast board was not emitted while first board was still running")
+                return {"jobs": [gh(1, "Support original")]}
+            return {"jobs": [gh(1, "Support duplicate"), gh(2, "Support second")]}
+
+        def on_board(event):
+            self.assertEqual(threading.get_ident(), calling_thread)
+            events.append(deepcopy(event))
+            self.assertTrue(event["provisional"])
+            self.assertNotIn("count", event["source"])
+            self.assertGreaterEqual(event["elapsed_seconds"], 0)
+            self.assertTrue(all(job["verification"] == "needs_description_and_application_check"
+                                for job in event["jobs"]))
+            event["jobs"][0]["title"] = "MUTATED CALLBACK COPY"
+            event["jobs"][0]["discovered_via"][0]["board"] = "changed"
+            event["jobs"][0]["triage"]["reasons"].append("mutated")
+            event["source"]["errors"].append("mutated")
+            if event["source"]["board"] == "fast":
+                slow_released.set()
+
+        try:
+            result = d.discover(boards, fetcher=fetcher, workers=2,
+                                profile={"version": 1, "title_keywords": ["support"]}, on_board=on_board)
+        finally:
+            slow_released.set()
+        self.assertEqual([event["board_index"] for event in events], [1, 0])
+        self.assertEqual([event["candidate_count"] for event in events], [2, 1])
+        self.assertEqual([job["title"] for job in result["jobs"]], ["Support original", "Support second"])
+        self.assertEqual([source["count"] for source in result["sources"]], [1, 1])
+        self.assertEqual([origin["board"] for origin in result["jobs"][0]["discovered_via"]], ["slow", "fast"])
+        self.assertNotIn("mutated", json.dumps(result))
+
+    def test_events_do_not_change_final_output_and_are_bounded_to_collected_boards(self):
+        boards = [{"provider": "greenhouse", "board": "first"},
+                  {"provider": "greenhouse", "board": "second"},
+                  {"provider": "greenhouse", "board": "first"},
+                  {"provider": "linkedin", "board": "excluded"}]
+        events = []
+        fetcher = lambda *_: {"jobs": [gh(), gh(2, "No keyword", content="None")]}
+        with patch.object(d, "timestamp", return_value="2026-09-10T12:00:00+00:00"):
+            baseline = d.discover(boards, ["react"], fetcher=fetcher, workers=1)
+            streamed = d.discover(boards, ["react"], fetcher=fetcher, workers=2, on_board=events.append)
+        self.assertEqual(streamed, baseline)
+        self.assertEqual(len(events), 2)
+        self.assertEqual(sorted(event["board_index"] for event in events), [0, 1])
+        self.assertTrue(all(event["candidate_count"] == 1 for event in events))
+        self.assertTrue(all(event["jobs"][0]["title"] == "React Developer" for event in events))
+
+    def test_blocked_board_emits_empty_provisional_event_without_retry(self):
+        events = []
+        fetcher = Mock(side_effect=HTTPError("https://api.lever.co", 403, "blocked", {}, None))
+        result = d.discover([{"provider": "lever", "board": "acme"}], fetcher=fetcher, on_board=events.append)
+        self.assertEqual(fetcher.call_count, 1)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["jobs"], [])
+        self.assertEqual(events[0]["source"]["status"], "blocked")
+        self.assertEqual(result["sources"][0]["count"], 0)
+
     def test_greenhouse_normalization_and_unknowns(self):
         result = d.discover([{"provider": "greenhouse", "board": "acme"}],
                             fetcher=lambda *_: {"jobs": [gh()], "meta": {"total": 1}})
@@ -377,6 +544,101 @@ class DiscoveryTests(unittest.TestCase):
                 output.unlink()
                 self.assertEqual(d.main(args + ["--workers", "9"]), 2)
                 self.assertFalse(output.exists())
+
+    def test_cli_events_are_flushed_before_the_final_file_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            boards, output = Path(tmp) / "boards.json", Path(tmp) / "output.json"
+            events, profile = Path(tmp) / "events.ndjson", Path(tmp) / "profile.json"
+            boards.write_text(json.dumps([{"provider": "greenhouse", "board": name} for name in ("one", "two")]))
+            profile.write_text(json.dumps({"version": 1, "title_keywords": ["react"]}))
+            observed = []
+
+            def fetcher(url, _timeout):
+                self.assertFalse(output.exists())
+                if "/two/" in url:
+                    # The first line is complete and visible without closing the stream.
+                    observed.extend(json.loads(line) for line in events.read_text().splitlines())
+                    self.assertEqual(len(observed), 1)
+                    self.assertEqual(observed[0]["source"]["board"], "one")
+                return {"jobs": [gh(1 if "/one/" in url else 2)]}
+
+            with patch.object(d, "fetch_json", side_effect=fetcher), patch("sys.stdout", io.StringIO()):
+                self.assertEqual(d.main(["--boards", str(boards), "--output", str(output),
+                                         "--events", str(events), "--profile", str(profile), "--workers", "1"]), 0)
+            lines = [json.loads(line) for line in events.read_text().splitlines()]
+            self.assertEqual([line["board_index"] for line in lines], [0, 1])
+            self.assertTrue(all(line["jobs"][0]["triage"]["priority"] == "review_first" for line in lines))
+            self.assertEqual(len(json.loads(output.read_text())["jobs"]), 2)
+            self.assertEqual(json.loads(profile.read_text()), {"version": 1, "title_keywords": ["react"]})
+
+    def test_cli_guards_every_input_and_output_alias_even_with_overwrite(self):
+        pairs = (("boards", "output"), ("boards", "events"), ("profile", "output"),
+                 ("profile", "events"), ("output", "events"), ("boards", "profile"))
+        for first, second in pairs:
+            for alias in ("same", "symlink", "hardlink"):
+                with self.subTest(pair=(first, second), alias=alias), tempfile.TemporaryDirectory() as tmp:
+                    paths = {name: Path(tmp) / f"{name}.json" for name in ("boards", "profile", "output", "events")}
+                    paths["boards"].write_text('[{"provider":"lever","board":"acme"}]')
+                    paths["profile"].write_text('{"version":1}')
+                    if not paths[first].exists():
+                        paths[first].write_text("keep existing destination")
+                    original = paths[first].read_text()
+                    if paths[second].exists():
+                        paths[second].unlink()
+                    if alias == "same":
+                        paths[second] = paths[first]
+                    elif alias == "symlink":
+                        paths[second].symlink_to(paths[first])
+                    else:
+                        paths[second].hardlink_to(paths[first])
+                    args = [arg for name, path in paths.items() for arg in (f"--{name}", str(path))]
+                    with patch.object(d, "fetch_json") as fetcher, patch("sys.stderr", io.StringIO()):
+                        self.assertEqual(d.main(args + ["--overwrite"]), 2)
+                        fetcher.assert_not_called()
+                    self.assertEqual(paths[first].read_text(), original)
+
+    def test_cli_nonexistent_output_alias_is_rejected_before_fetch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            boards, output = Path(tmp) / "boards.json", Path(tmp) / "new.json"
+            boards.write_text('[{"provider":"lever","board":"acme"}]')
+            with patch.object(d, "fetch_json") as fetcher, patch("sys.stderr", io.StringIO()):
+                self.assertEqual(d.main(["--boards", str(boards), "--output", str(output),
+                                         "--events", str(output), "--overwrite"]), 2)
+                fetcher.assert_not_called()
+            self.assertFalse(output.exists())
+
+    def test_cli_invalid_profile_and_options_do_not_touch_events_or_fetch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = {name: Path(tmp) / f"{name}.json" for name in ("boards", "profile", "output", "events")}
+            paths["boards"].write_text('[{"provider":"lever","board":"acme"}]')
+            paths["events"].write_text("keep previous events")
+            args = [arg for name, path in paths.items() for arg in (f"--{name}", str(path))]
+            cases = ((None, []), ({"version": 2}, []), ({"version": 1}, ["--keywords", "react"]),
+                     ({"version": 1}, ["--workers", "9"]), ({"version": 1}, ["--max-pages", "0"]))
+            for profile, extra in cases:
+                with self.subTest(profile=profile, extra=extra):
+                    paths["profile"].write_text(json.dumps(profile))
+                    with patch.object(d, "fetch_json") as fetcher, patch("sys.stderr", io.StringIO()):
+                        self.assertEqual(d.main(args + ["--overwrite"] + extra), 2)
+                        fetcher.assert_not_called()
+                    self.assertEqual(paths["events"].read_text(), "keep previous events")
+                    self.assertFalse(paths["output"].exists())
+
+    def test_cli_events_overwrite_guard_and_empty_event_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            boards, output, events = (Path(tmp) / name for name in ("boards.json", "output.json", "events.ndjson"))
+            boards.write_text('[{"provider":"indeed","board":"excluded"}]')
+            events.write_text("keep existing events")
+            args = ["--boards", str(boards), "--output", str(output), "--events", str(events)]
+            with patch.object(d, "fetch_json") as fetcher, patch("sys.stderr", io.StringIO()), \
+                    patch("sys.stdout", io.StringIO()):
+                self.assertEqual(d.main(args), 2)
+                self.assertEqual(events.read_text(), "keep existing events")
+                self.assertFalse(output.exists())
+                self.assertEqual(d.main(args + ["--overwrite"]), 1)
+                fetcher.assert_not_called()
+            self.assertEqual(events.read_text(), "")
+            self.assertEqual(json.loads(output.read_text())["sources"][0]["status"], "blocked")
 
     def test_cli_existing_output_requires_overwrite(self):
         with tempfile.TemporaryDirectory() as tmp:

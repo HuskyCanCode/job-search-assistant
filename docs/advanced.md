@@ -9,13 +9,14 @@ The scripts below are optional. Run their commands from the **repository root**.
 - Refines a broad search into useful roles, filters, and reusable search queries.
 - Suggests close, adjacent, and stretch roles based on transferable experience.
 - Uses supported search tools and permitted employer sources, with a short catalog of conditional feeds and APIs. Restricted and unverified boards are excluded.
-- Speeds discovery with parallel query batches, early deduplication, shared employer research, and limited retries of blocked sources.
+- Orders review with structured local preferences, keeps uncertain candidates, preserves multiple locations, and adapts query effort to observed useful results.
+- Uses parallel batches, early deduplication, permitted employer-link reuse, explicit feedback and limited retries to reduce repeated work.
 - Can collect published leads concurrently from observed Greenhouse, Lever, and Ashby boards when the documented API and intended report use are permitted.
 - Verifies original postings, merges syndicated duplicates, and preserves where each job was found.
 - Reads a resume or detailed professional profile using available host tools.
 - Compares job requirements with professional evidence and reports a 0–100 fit score, evidence coverage, eligibility, strengths, gaps, and application priority.
-- Targets 20 distinct relevant companies by default, linking each company name to its official website and showing up to three recommended jobs before the detailed tables for that company.
-- Adds a company match rating, employee size, recent workforce trend, and the latest publicly reported layoff date with sources and clear unknowns.
+- Shows the first five verified companies as an interim update, then continues toward 20 distinct relevant companies with up to three recommended jobs each.
+- Adds a company match rating, employee size, recent workforce trend, and the latest publicly reported layoff date. Workforce research starts after a company has a viable verified job; interim pending fields stay unknown.
 - Produces Markdown tables and optional CSV exports, with a source coverage table showing actual searches and access limitations.
 
 Job scores measure documented fit. The company rating averages the available fit scores among its up to three recommended verified openings. These are not employer reputation ratings or hiring probabilities. Size, headcount trend, and layoffs are separate context and do not automatically change the score.
@@ -32,6 +33,8 @@ This preserves the 20-company target, up to three recommendations per company, r
 
 The included public-API collector's network requests are limited to its three supported public listing APIs; the host agent follows the skill's source policy separately. The skill is not a firewall over all host tools. See the [live discovery workflow](../references/live-discovery.md) for the distinction.
 
+Local triage, progress files, transcripts and reusable employer metadata still need compatible processing and storage rights. Completion events can contain job descriptions, so they have the same source-use limits as saved leads. A private registry holds only permitted minimal employer/board metadata and dated permission evidence, never a permanent permission grant or current-vacancy guarantee. Exclusions remain in force. See the [scoped review](../references/source-policy-audit.md#local-filtering-progress-and-registry-review).
+
 ## Public employer-board collection (optional advanced use)
 
 After establishing that the API access and saved-report use are permitted, observe the board identifier in an actual employer career link and save a JSON list to `private/boards.json` with entries such as `{"provider": "greenhouse", "board": "OBSERVED_TOKEN"}`. `OBSERVED_TOKEN` is a placeholder, not an employer to query. Supported providers are `greenhouse`, `lever`, and `ashby`; Lever also supports `"region": "eu"` for observed European boards. No-key access is a technical property, not a blanket reuse license.
@@ -40,7 +43,26 @@ After establishing that the API access and saved-report use are permitted, obser
 python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --keywords "customer success" onboarding support --workers 4
 ```
 
-The collector requires Python 3.10+ and network access, with no third-party packages or API key. It uses four workers by default (configurable from 1–8); `--workers 1` runs sequentially. Keywords filter downloaded public descriptions locally. Its output contains **leads**, source timestamps, and failures; the agent verifies company identity, the full posting, application availability, and candidate eligibility before turning leads into recommendations. It does not discover all employers or submit applications. See [live-discovery.md](../references/live-discovery.md) for limits, output fields, and certificate troubleshooting.
+The collector requires Python 3.10+ and network access, with no third-party packages or API key. It uses four workers by default (configurable from 1–8); `--workers 1` runs sequentially. Legacy keywords filter downloaded public descriptions locally. Structured profile mode instead retains candidates and orders review without treating triage as a fit score. Its output contains **leads**, source timestamps, and failures; the agent verifies company identity, the full posting, application availability, and candidate eligibility before turning leads into recommendations. It does not discover all employers or submit applications. See [live-discovery.md](../references/live-discovery.md) for limits, output fields, and certificate troubleshooting.
+
+For structured review, adapt the fictional [profile example](../examples/triage-profile.json) to the user's confirmed limits and save it as `private/profile.json`:
+
+```sh
+python3 scripts/discover_jobs.py --boards private/boards.json --output private/leads.json --profile private/profile.json --events private/events.jsonl --workers 4
+```
+
+Use either `--profile` or `--keywords`, never both. Profile mode retains uncertain and conflicting candidates for review; title and level preferences are not hard exclusions. Optional events expose completed boards before collection ends, but are still unverified leads and may contain duplicates. The host checks them before showing five verified employers and continues to the full target. The final leads file preserves stable input-board ordering. Both output files need compatible source-retention rights.
+
+## Adaptive search state and explicit feedback
+
+The [local search-state helper](../references/search-state.md) records bounded query outcomes, explicit feedback and minimal permitted employer/board metadata. For example:
+
+```sh
+python3 scripts/search_state.py init private/search-state.json --profile candidate --run run-01 --families development qa support
+python3 scripts/search_state.py suggest private/search-state.json --slots 8 --exploration .25 --recent 3
+```
+
+The first command creates empty local state; it does not find jobs. After the host records permitted observations using the documented state contract, `suggest` allocates a batch across the allowed role families, including exploration. It records routes but does not allocate route-specific slots; the host chooses permitted routes using the source coverage ledger. Its output is a plan, not performed searches or a new candidate-fit score. Follow [search-state.md](../references/search-state.md) for registry rights, explicit-feedback scope, validation and updates. No new provider accounts or requests are made by this helper.
 
 ## Try the report generator
 
@@ -72,6 +94,12 @@ Use synthetic information in repository examples and tests. Save personal resume
 
 The skill uses generalized keywords for web searches. It does not authorize uploading a resume to a job board, sending applications, or contacting employers. Those actions require the user's request.
 
+Keep structured profiles, explicit feedback, registry metadata, query observations and progress files private too. Feedback affects only the scope the user stated; one dismissed job does not exclude an employer or create a new hard requirement. A registry entry must be checked for current employer identity, route and rights before reuse, and every job receives a fresh check for a new report.
+
+## Evaluate speed and quality
+
+Compare like-for-like runs using time to the first five verified employers, total time, requests, new unique viable employers, duplicate counts and unresolved evidence. Review missed relevant jobs as well as top results when evaluating triage. Label synthetic request benchmarks separately from live end-to-end research. More raw leads, fewer checks or an unfinished five-company preview do not establish improved quality or a completed 20-company search.
+
 ## Repository structure
 
 ```text
@@ -80,6 +108,8 @@ agents/openai.yaml            Skill display metadata
 references/                   Search, matching, and report guidance
 scripts/build_report.py       Deterministic scoring and table export
 scripts/discover_jobs.py      Public Greenhouse, Lever, and Ashby lead collection
+scripts/triage_jobs.py        Local structured review signals for collected leads
+scripts/search_state.py       Private query allocation, registry and explicit feedback
 examples/                     Fictional input and reports
 assets/                       Illustrated usage and report guides
 docs/                         Detailed reader guides and examples

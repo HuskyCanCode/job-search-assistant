@@ -89,11 +89,12 @@ Then show job details grouped by company, with resume matches, evidence coverage
 eligibility, gaps and application priority. Include reusable search keywords.
 Use permitted search tools and employer sources, and explain missing information
 or any shortfall against the company target.
+Show the first five verified companies as an interim update, then keep going to 20.
 ```
 
-**What happens next:** the skill reads your background, expands role titles, searches permitted sources, checks original postings, compares requirements and researches companies. If an essential location or work preference is missing, it asks a short question and continues useful preparation. You do not need to choose every job board or approve each permitted read-only search.
+**What happens next:** the skill turns your preferences into a structured search profile, searches permitted sources and checks original postings. It shows the first five companies with verified suitable jobs, then continues toward 20. Company size, trend and layoff research starts only after a company has a viable job; an interim field may say **Unknown — research pending**. The final report includes the researched fields or explains missing evidence. If an essential location or work preference is missing, it asks a short question and continues useful preparation. You do not need to choose every source or approve each permitted read-only search.
 
-Discovery uses parallel query batches, early duplicate removal and shared company research. Actual completion time depends on access and evidence; there is no fixed runtime. The [fast search workflow](../references/search-strategy.md#fast-search-workflow) explains how it avoids repeated work.
+Search effort shifts toward role and source combinations producing useful verified jobs, while still trying relevant alternatives. Local filtering keeps uncertain candidates for review and preserves all offered locations; it does not decide that you are unqualified from a missing keyword. Permitted employer links can be reused from a private registry, with current jobs checked again. Actual completion time depends on access and evidence; there is no fixed runtime. See the [fast search workflow](../references/search-strategy.md#fast-search-workflow).
 
 ### 4. Read the company overview, then the jobs
 
@@ -110,6 +111,8 @@ Start with companies that interest you, then read their detailed job rows. The [
 | Workforce trend and layoffs | Read the dates and sources; employee growth is not inferred from job counts, and a layoff announcement date differs from its effective date |
 | Unknown, N/A or provisional | Unknown means a fact is missing; N/A means a score cannot be supported; provisional means the assessment has stated limitations |
 | Sources and check dates | See what was actually searched and how recently each posting was checked |
+| Interim update | The first five verified companies are a progress update, not a best-five ranking; the search continues toward your target |
+| Several locations in one row | One job may offer several locations. Check which options and attendance requirements fit you; it still counts as one vacancy |
 
 **20 companies means 20 distinct employers**, with up to three suitable recommended jobs each. It does not guarantee 60 jobs. When fewer employers can be substantiated, the report explains the shortfall. Closed, inaccessible or confirmed-ineligible listings do not fill the recommendation quota. “No layoff report found” describes only the sources and period checked.
 
@@ -122,6 +125,16 @@ Keep my location and work preferences. Focus the next search on QA and applicati
 support roles. Exclude internships and roles requiring current student status.
 Keep the 20-company target and explain the most important gaps in my best matches.
 ```
+
+Be specific about feedback and whether it applies to one job or the whole search:
+
+```text
+Prioritize application support roles in the next search. Skip job J-07 because
+its travel requirement does not suit me; do not exclude the whole company.
+Keep my other preferences unchanged.
+```
+
+The skill uses what you explicitly say. It does not infer dislikes from silence or clicks, change firm requirements from one rejected job, or treat an application outcome as your future hiring odds. Search profiles, feedback and any reusable employer registry stay in private local files when their storage is permitted; they are not uploaded to job sources.
 
 For a deliberately smaller follow-up:
 
@@ -205,5 +218,6 @@ A search runs when requested in the conversation. Background repetition requires
 | Only a plan is returned | Check whether a permitted live-search and verification route is available. Without one, current openings cannot be verified; you can still compare supplied job descriptions. |
 | Ratings show N/A | Supply enough professional evidence for matching and a complete, verifiable job description. Do not ask the skill to guess a score. |
 | Fewer than 20 companies appear | Read the search limits. Broaden role titles, locations or other preferences you are willing to change; keep firm constraints intact. |
+| Only five companies appear in an interim update | The search is still running toward your target. Pending company research is completed before the final report or explained as unavailable. |
 | A requested job board is excluded | The skill explains the exclusion and can continue through permitted employer sources within your requested scope. It does not recommend the excluded service or collect its content through another engine. See the [policy audit](../references/source-policy-audit.md). |
 | A formerly open job has closed | Ask for a fresh check and replacement openings; an earlier check is not a guarantee of current availability. |

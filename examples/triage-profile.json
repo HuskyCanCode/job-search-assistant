@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "title_keywords": ["QA", "quality assurance", "application support", "software support"],
+  "function_keywords": ["testing", "troubleshooting", "debugging"],
+  "preferred_levels": ["junior", "entry level"],
+  "allowed_countries": ["US"],
+  "workplace_types": ["onsite", "hybrid"],
+  "employment_types": ["fulltime"],
+  "excluded_employment_types": [],
+  "excluded_title_phrases": []
+}

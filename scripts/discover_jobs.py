@@ -9,16 +9,20 @@ github.com/lever/postings-api, developers.ashbyhq.com/docs/public-job-posting-ap
 """
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import ExitStack
+from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
 from html import unescape
 from html.parser import HTMLParser
 import json
+import importlib.util
 from pathlib import Path
 import re
 import ssl
 import sys
+from time import monotonic
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -158,16 +162,34 @@ def normalize(raw, board, api_url, checked_at):
     job_id = raw.get("id")
     if not isinstance(job_id, (str, int)) or isinstance(job_id, bool) or not str(job_id):
         job_id = hashlib.sha256(canonical_link(source_url).encode()).hexdigest()[:20]
-    location = workplace = employment = salary = None
+    location = workplace = employment = salary = level = None
+    locations = []
+
+    def add_location(name, country=None):
+        item = {"name": string(name) or None, "country": string(country) or None}
+        if any(item.values()) and item not in locations:
+            locations.append(item)
+
     description = ""
     if provider == "greenhouse":
         loc = raw.get("location")
         location = string(loc.get("name")) if isinstance(loc, dict) else ""
+        add_location(location)
+        observed_fields = ("location", "offices")
         description = plain_html(raw.get("content"))
     elif provider == "lever":
         categories = raw.get("categories")
         categories = categories if isinstance(categories, dict) else {}
         location = string(categories.get("location"))
+        country = string(raw.get("country")) or None
+        add_location(location, country)
+        all_locations = categories.get("allLocations")
+        for name in all_locations if isinstance(all_locations, list) else []:
+            if isinstance(name, str):
+                # The posting's country describes its primary location only.
+                add_location(name, country if string(name) == location else None)
+        level = string(categories.get("level")) or None
+        observed_fields = ("country",)
         employment = string(categories.get("commitment"))
         workplace = string(raw.get("workplaceType"))
         if workplace == "unspecified":
@@ -186,6 +208,18 @@ def normalize(raw, board, api_url, checked_at):
                 salary = None
     else:
         location = string(raw.get("location"))
+        address = raw.get("address")
+        address = address if isinstance(address, dict) else {}
+        postal_address = address.get("postalAddress")
+        postal_address = postal_address if isinstance(postal_address, dict) else {}
+        add_location(location, postal_address.get("addressCountry"))
+        secondary = raw.get("secondaryLocations")
+        for item in secondary if isinstance(secondary, list) else []:
+            if isinstance(item, dict):
+                address = item.get("address")
+                address = address if isinstance(address, dict) else {}
+                add_location(item.get("location"), address.get("addressCountry"))
+        observed_fields = ("location", "secondaryLocations", "address")
         employment = string(raw.get("employmentType"))
         workplace = string(raw.get("workplaceType"))
         if not workplace and raw.get("isRemote") is True:
@@ -194,14 +228,21 @@ def normalize(raw, board, api_url, checked_at):
         pay = raw.get("compensation")
         if isinstance(pay, dict):
             salary = string(pay.get("scrapeableCompensationSalarySummary")) or None
+    observed = {key: deepcopy(raw[key]) for key in observed_fields if key in raw}
+    if provider == "lever":
+        observed["categories"] = {key: deepcopy(categories[key])
+                                  for key in ("location", "allLocations", "level") if key in categories}
     return {
         "id": f"{provider}:{board['region']}:{board['board']}:{job_id}",
         "title": title, "company": None, "company_board": board["board"],
         "location": location or None, "workplace": workplace or None,
+        "locations": locations, "level": level,
+        "observed_metadata": observed,
         "employment_type": employment or None, "salary": salary,
         "source_url": source_url, "apply_url": valid_link(raw.get("applyUrl")),
         "description": description or None,
         "published_at": string(raw.get("publishedAt")) or None,
+        "updated_at": (string(raw.get("updated_at")) or None) if provider == "greenhouse" else None,
         "source": {**board, "api_url": api_url, "checked_at": checked_at},
         "discovered_via": [{**board, "api_url": api_url, "checked_at": checked_at,
                             "source_url": source_url}],
@@ -268,26 +309,53 @@ def collect_board(board, source, checked, timeout, max_pages, fetcher):
     return jobs
 
 
-def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None, *, workers=4):
+def validate_options(boards, keywords, timeout, max_pages, workers, profile, on_board):
+    """Validate run-wide inputs before starting any requests or output writes."""
+    if not isinstance(boards, list) or not 1 <= len(boards) <= 100:
+        raise ValueError("boards must be a list of 1–100 board objects")
+    if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
+            or not 1 <= timeout <= 60 or type(max_pages) is not int or not 1 <= max_pages <= 20):
+        raise ValueError("timeout must be 1–60 seconds and max_pages an integer from 1 to 20")
+    if type(workers) is not int or not 1 <= workers <= 8:
+        raise ValueError("workers must be an integer from 1 to 8")
+    if not isinstance(keywords, (list, tuple)):
+        raise ValueError("keywords must be a list or tuple")
+    if profile is not None and keywords:
+        raise ValueError("profile and legacy keywords cannot be combined; profile retains all candidates")
+    if on_board is not None and not callable(on_board):
+        raise ValueError("on_board must be callable")
+    terms = [term.strip().casefold() for term in keywords if isinstance(term, str) and term.strip()]
+    triage = None
+    if profile is not None:
+        # Loading by sibling path also supports importlib-based callers without
+        # modifying their import path or depending on the current directory.
+        spec = importlib.util.spec_from_file_location("job_search_triage", Path(__file__).with_name("triage_jobs.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        profile = module.validate_profile(deepcopy(profile))
+        triage = module.triage_job
+    return terms, profile, triage
+
+
+def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None, *, workers=4,
+             profile=None, on_board=None):
     """Return deduplicated leads; source count means newly retained unique leads.
 
     Up to ``workers`` boards are collected concurrently (1–8; default 4).
     Results and duplicate provenance retain input-board/page order regardless of
     completion order. Custom fetchers must be thread-safe, or use workers=1.
+    ``on_board(event)`` runs serially on the calling thread as each unique valid
+    board completes. Events contain isolated, provisional candidate copies;
+    reconcile duplicates and counts against the final result. Callback errors
+    abort the run. A profile annotates every lead without filtering conflicts.
     """
-    if not isinstance(boards, list) or not 1 <= len(boards) <= 100:
-        raise ValueError("boards must be a list of 1–100 board objects")
-    if not 1 <= timeout <= 60 or not 1 <= max_pages <= 20:
-        raise ValueError("timeout must be 1–60 seconds and max_pages 1–20")
-    if type(workers) is not int or not 1 <= workers <= 8:
-        raise ValueError("workers must be an integer from 1 to 8")
+    terms, profile, triage = validate_options(boards, keywords, timeout, max_pages, workers, profile, on_board)
     checked = timestamp()
-    terms = [term.strip().casefold() for term in keywords if isinstance(term, str) and term.strip()]
     result = {"generated_at": checked, "keywords": terms, "jobs": [], "sources": []}
     seen_boards, seen_ids, seen_urls = set(), {}, {}
     fetcher = fetcher or fetch_json
-    tasks = []
-    for raw_board in boards:
+    tasks, task_indices = [], []
+    for board_index, raw_board in enumerate(boards):
         source = {"provider": None, "board": None, "region": None, "status": "blocked",
                   "count": 0, "fetched_count": 0, "errors": [], "truncated": False,
                   "checked_at": checked}
@@ -305,6 +373,33 @@ def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None, *, wor
         seen_boards.add(board_key)
         source["status"] = "searched"
         tasks.append((board, source, checked, timeout, max_pages, fetcher))
+        task_indices.append(board_index)
+
+    def matches_keywords(job):
+        text = f"{job['title']} {job['description'] or ''}".casefold()
+        return not terms or any(term in text for term in terms)
+
+    def collect_timed(task):
+        started = monotonic()
+        jobs = collect_board(*task)
+        return jobs, max(0.0, monotonic() - started)
+
+    def completed(index, collected):
+        jobs, elapsed = collected
+        if triage is not None:
+            for job in jobs:
+                job["triage"] = triage(job, profile)
+        if on_board is not None:
+            candidates = [job for job in jobs if matches_keywords(job)]
+            # Global unique counts and cross-board provenance are not settled
+            # until all earlier input boards have completed.
+            source = {key: value for key, value in tasks[index][1].items() if key != "count"}
+            event = {"event": "board_completed", "provisional": True,
+                     "board_index": task_indices[index], "source": source,
+                     "candidate_count": len(candidates), "elapsed_seconds": round(elapsed, 6),
+                     "jobs": candidates}
+            on_board(deepcopy(event))
+        return jobs
 
     def merge(task, jobs):
         board, source = task[:2]
@@ -317,45 +412,95 @@ def discover(boards, keywords=(), timeout=15, max_pages=10, fetcher=None, *, wor
                 origin = job["discovered_via"][0]
                 if origin not in existing["discovered_via"]:
                     existing["discovered_via"].append(origin)
+                if triage is not None and ((existing["triage"]["priority"] == "conflict")
+                                            != (job["triage"]["priority"] == "conflict")):
+                    # Preserve the first record's observed fields, but never
+                    # discard a potentially suitable variant during triage.
+                    existing["triage"]["priority"] = "review"
+                    uncertainty = "Duplicate source records disagree on a hard constraint; verify every variant"
+                    if uncertainty not in existing["triage"]["unknowns"]:
+                        existing["triage"]["unknowns"].append(uncertainty)
                 seen_ids[identity], seen_urls[link] = existing, existing
                 continue
-            text = f"{job['title']} {job['description'] or ''}".casefold()
-            if terms and not any(term in text for term in terms):
+            if not matches_keywords(job):
                 continue
             seen_ids[identity], seen_urls[link] = job, job
             result["jobs"].append(job)
             source["count"] += 1
 
     if workers == 1 or len(tasks) < 2:
-        for task in tasks:
-            merge(task, collect_board(*task))
+        for index, task in enumerate(tasks):
+            merge(task, completed(index, collect_timed(task)))
     else:
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = [pool.submit(collect_board, *task) for task in tasks]
-            # Merge on the calling thread in input order, never completion order.
-            for task, future in zip(tasks, futures):
-                merge(task, future.result())
+            futures = {pool.submit(collect_timed, task): index for index, task in enumerate(tasks)}
+            collected = [None] * len(tasks)
+            try:
+                for future in as_completed(futures):
+                    index = futures[future]
+                    collected[index] = completed(index, future.result())
+            except Exception:
+                for future in futures:
+                    future.cancel()
+                raise
+            # Events follow completion order; final winners/counts retain input order.
+            for task, jobs in zip(tasks, collected):
+                merge(task, jobs)
     return result
+
+
+def validate_paths(boards, profile, output, events, overwrite):
+    paths = [("boards input", boards), ("profile input", profile),
+             ("output", output), ("events output", events)]
+    paths = [(name, path) for name, path in paths if path is not None]
+    for index, (name, path) in enumerate(paths):
+        for other_name, other in paths[index + 1:]:
+            if (path.resolve() == other.resolve()
+                    or (path.exists() and other.exists() and path.samefile(other))):
+                raise ValueError(f"{name} and {other_name} must be different files (including file aliases)")
+    for path in (output, events):
+        if path is None:
+            continue
+        if path.is_dir():
+            raise ValueError("Output destinations must be files, not directories")
+        if (path.exists() or path.is_symlink()) and not overwrite:
+            raise ValueError("Output already exists; use --overwrite to replace it")
+        for parent in path.parents:
+            if parent.exists() and not parent.is_dir():
+                raise ValueError("Output parent must be a directory")
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--boards", required=True, type=Path, help="JSON list of observed employer boards")
     parser.add_argument("--output", required=True, type=Path, help="Discovery JSON destination")
-    parser.add_argument("--overwrite", action="store_true", help="Allow replacing an existing discovery output")
+    parser.add_argument("--events", type=Path, help="Optional NDJSON stream of provisional completed-board leads")
+    parser.add_argument("--profile", type=Path, help="JSON triage profile; annotates every lead without dropping conflicts")
+    parser.add_argument("--overwrite", action="store_true", help="Allow replacing existing discovery and events outputs")
     parser.add_argument("--keywords", nargs="+", default=[], help="Local OR substring filter on title and description")
     parser.add_argument("--timeout", type=int, default=15, help="Per-request seconds (1–60; default 15)")
     parser.add_argument("--max-pages", type=int, default=10, help="Lever page cap (1–20; 100 jobs/page)")
     parser.add_argument("--workers", type=int, default=4, help="Concurrent boards (1–8; default 4; 1 for sequential)")
     args = parser.parse_args(argv)
     try:
-        if (args.boards.resolve() == args.output.resolve()
-                or (args.output.exists() and args.boards.samefile(args.output))):
-            raise ValueError("Output must not overwrite the boards input (including file aliases)")
-        if args.output.exists() and not args.overwrite:
-            raise ValueError("Output already exists; use --overwrite to replace it")
+        validate_paths(args.boards, args.profile, args.output, args.events, args.overwrite)
         boards = json.loads(args.boards.read_text(encoding="utf-8"))
-        result = discover(boards, args.keywords, args.timeout, args.max_pages, workers=args.workers)
+        profile = json.loads(args.profile.read_text(encoding="utf-8")) if args.profile else None
+        if args.profile and not isinstance(profile, dict):
+            raise ValueError("Profile JSON must be an object")
+        validate_options(boards, args.keywords, args.timeout, args.max_pages, args.workers, profile, None)
+        with ExitStack() as stack:
+            on_board = None
+            if args.events:
+                args.events.parent.mkdir(parents=True, exist_ok=True)
+                stream = stack.enter_context(args.events.open("w" if args.overwrite else "x", encoding="utf-8"))
+
+                def on_board(event):
+                    stream.write(json.dumps(event, ensure_ascii=False) + "\n")
+                    stream.flush()
+
+            result = discover(boards, args.keywords, args.timeout, args.max_pages, workers=args.workers,
+                              profile=profile, on_board=on_board)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("w" if args.overwrite else "x", encoding="utf-8") as destination:
             destination.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")

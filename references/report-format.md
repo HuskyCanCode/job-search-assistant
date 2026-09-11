@@ -10,6 +10,10 @@ Begin with a short date/scope/profile note and explain that match ratings measur
 
 Twenty is a company target, not a promise of 60 vacancies. State the number of researched companies, the number with verified open jobs, the number with recommendable verified jobs and any shortfall against the last count. Employers represented only by inaccessible leads or confirmed-ineligible jobs do not fulfill the recommendation target. Do not repeat parents, aliases or city variants to inflate the count.
 
+Show an **interim first-five** table once five distinct employers have recommendable verified open jobs, then continue the same run to the requested target. Use a smaller threshold only for a smaller user target. Label it interim, include the actual check time, and keep `company_target` at 20 when that remains the goal. The first five are a progress milestone, not a final best-five ranking. Collector events and local triage priorities cannot establish verification or replace resume-fit scores.
+
+Keep every requested company column in the interim. For pending research, use `size.value: null`, `size.basis: "unknown"`, `headcount_trend.direction: "unknown"` and `latest_layoff.status: "unknown"`, with empty evidence arrays and honest pending notes/summaries. Unknown size can explain pending work in `scope`; dates not yet researched remain null. Never use zero employees, stable headcount or `none_found` layoffs to mean pending. A rating based on one scored recommendation remains provisional. Complete the workforce research after each employer qualifies; final unknowns need a real evidence/access limitation, not an unfinished preview placeholder.
+
 After that overview, show jobs grouped under each company in the same order. Within each company separate open recommendations, confirmed eligibility blockers, unverified leads and inactive jobs. Use these tables, splitting wide tables if needed:
 
 | Priority | Role and direct job link | Company | Location / remote limits | Pay | Fit / coverage | Eligibility | Evidence, gaps, next action |
@@ -17,6 +21,8 @@ After that overview, show jobs grouped under each company in the same order. Wit
 | Application priority | [Verified title](https://example.com/replace-with-verified-post) | Employer | As stated | Currency + period, or unknown | Score or N/A + coverage | Met / unknown / unmet | Concise explanation |
 
 The example URL is only a format illustration. Replace it with an observed posting. Record posted and checked dates in job details; unknown posting dates stay unknown. Include employment type and requisition ID in notes. Company facts use their own as-of dates and sources, not the job's posting date. Follow [company-research.md](company-research.md) for size, headcount and layoff evidence.
+
+Preserve all applicable locations for one requisition in the `location` display and retain per-location country/region, remote and attendance restrictions in notes or details. Do not split one multi-location requisition into extra jobs or companies, or silently discard secondary locations. Office hierarchy metadata is context, not automatic permission to work in every listed office. A matching location does not resolve unknown work authorization or other hard constraints.
 
 | Role group | Keywords / titles | Why relevant | Reusable query | Suggested source |
 | --- | --- | --- | --- | --- |
@@ -43,6 +49,8 @@ python3 scripts/build_report.py private/search-input.json --output private/job-r
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
 The helper renders the comparison and `search_sources` coverage tables, and preserves `discovered_via` links in details and CSV. It does not enforce source licenses, deep-link permission, required link attributes, credit placement, application routes or retention limits. Check that every delivered format can satisfy a source's conditions before supplying its material. If the helper cannot, use a suitable manually assembled report that preserves the same table/scoring contract, or omit that source and continue with compatible evidence. Do not silently drop required conditions or invent schema fields the helper rejects. Add the keyword/query table and search conclusion to the final report. The runnable [sample input](../examples/sample-input.json) demonstrates the JSON shape with synthetic data.
+
+Structured search profiles, collector triage/events, query-allocation observations, registry records and explicit feedback are separate workflow inputs/state. Do not paste them as new fields into the report schema or convert their labels into matching assessments. The host must supply permitted observations and actual verification evidence. Store progress files, final reports and local state only within applicable source retention rights; a local file or transcript is still a retained copy.
 
 ## JSON versions and company fields
 
