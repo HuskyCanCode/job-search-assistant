@@ -1,16 +1,14 @@
 # Job Search Assistant
 
-Find jobs from your resume or career goals, compare your fit, and get a report organized by company.
+Turn a resume or career goal into a current, company-by-company job report with direct posting links and transparent match scores.
 
-Use it in an AI assistant that supports skills, file reading and permitted live search. No Python commands are needed for normal use.
+The skill searches permitted employer sources, recommends up to three jobs per company, compares each description with the candidate's experience, and creates a private illustrated HTML report with a Markdown companion.
 
-## Use the skill
+## Quick start
 
 ### 1. Install once
 
-Already installed? Skip to step 2. Otherwise, use one of these copy-and-paste options.
-
-**Codex chat**
+In Codex chat, copy and send:
 
 ```text
 Use $skill-installer to install job-search-assistant from
@@ -18,42 +16,44 @@ https://github.com/HuskyCanCode/job-search-assistant.
 SKILL.md is at the repository root. Preserve any existing installation changes.
 ```
 
-**Codex terminal (macOS/Linux)**
+Or install from a terminal:
 
 ```sh
+# Codex
 mkdir -p ~/.codex/skills
 git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.codex/skills/job-search-assistant
-```
 
-**Claude Code terminal (macOS/Linux)**
-
-```sh
+# Claude Code
 mkdir -p ~/.claude/skills
 git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.claude/skills/job-search-assistant
 ```
 
-After either terminal command, invoke `$job-search-assistant` in Codex or `/job-search-assistant` in Claude Code. A clone stops if its destination already exists, so it does not overwrite an existing installation. This private repository requires GitHub access and an existing SSH key (use the HTTPS repository URL if that is how your GitHub authentication is configured). If a newly installed skill does not appear in Codex, restart Codex; Claude Code watches personal skill folders and can pick up changes in the current session. [Installation details and update instructions](docs/usage-guide.md#1-install-the-skill-once).
+This is a private repository, so GitHub access is required. Use the HTTPS repository URL if your GitHub account is configured for HTTPS instead of SSH. Restart Codex if the newly installed skill does not appear.
 
-### 2. Start a search
+### 2. Run a search
 
-Attach your resume or paste a professional summary. A resume is optional. Change the location and preferences in this example to yours:
+Attach a resume, then copy and adjust this prompt:
 
 ```text
-Use $job-search-assistant and my attached resume.
-Find on-site jobs in the United States; I am open to relocation.
-Suggest suitable roles and target 20 different companies.
-Include direct job links, match scores and reusable search keywords.
+Use $job-search-assistant with my attached resume.
+Find frontend jobs in the United States. I prefer on-site work,
+I am open to relocation, and I do not need visa sponsorship.
+Target 20 companies and create the HTML report.
 ```
 
-Without a resume or detailed profile, remove “and my attached resume” and name the roles you want. The search can still run, with personal match ratings marked N/A.
+A resume is optional. You can instead describe your experience, target roles, location, work arrangement, and other limits. Without enough professional evidence, personal match scores appear as **N/A**.
 
-### 3. Review and refine
+### 3. Open the report
 
-Review the jobs and company details, check each job's requirements, and open the posting when ready to apply. To narrow the results, reply:
+The HTML report puts recommended jobs first. Each company name and job title is a link. Expand a company to review its size, workforce trend, recent reported layoffs, resume evidence, gaps, and source details.
 
-> Focus on QA and application support. Keep my location preferences and show the five companies I should prioritize.
+| Report section | What it shows |
+| --- | --- |
+| Recommended jobs | Direct job links, location, pay, fit score, eligibility and next action |
+| Company overview | Linked company name, company match, size, workforce trend and latest reported layoff |
+| Full evidence | Requirement-by-requirement resume comparison, reusable search keywords and sources checked |
 
-Completed searches use the HTML report by default: recommended jobs first, with company details you can expand. A Markdown companion includes the full tables and search keywords. The skill does not submit applications or contact employers automatically.
+[Open the fictional sample report](examples/sample-report.html) or see [preview help](docs/report-preview.md).
 
 <details open>
 <summary>See the illustrated walkthrough</summary>
@@ -62,26 +62,22 @@ Completed searches use the HTML report by default: recommended jobs first, with 
 
 </details>
 
-## What you get
+## How results are selected
 
-| Report section | Includes |
-| --- | --- |
-| Company overview | Linked company names, **company size**, **match ratings**, workforce trends, latest reported layoffs, and up to **3 recommended job links** each |
-| Jobs by company | Location, pay, resume fit, eligibility, gaps and application priority |
-| Search details | Related keywords, sources checked, dates and limitations |
+- The default target is **20 distinct companies**, with up to **3 recommended jobs per company**. The report shows the actual count when fewer suitable, current openings can be verified.
+- A job fit score measures documented alignment between the job description and the candidate's evidence. It is not a probability of receiving an interview or offer.
+- A company match is the average fit of that company's scored recommendations. It is not a reputation, stability, or employer-quality rating.
+- Unknown facts remain **Unknown**. Unsupported scores remain **N/A**.
+- Searches use employer pages and other routes whose policies cover the method and report. LinkedIn, Indeed, and similarly restricted or unresolved sources are excluded rather than scraped or reconstructed.
+- The skill creates reports and recommendations. It does not submit applications, contact employers, create accounts, or schedule recurring searches unless the user explicitly requests those actions.
 
-The target is **20 distinct companies**; fewer may qualify. Company ratings average the scored recommended jobs and measure resume fit, not hiring probability. Missing facts show **Unknown**; unsupported scores show **N/A**.
+To refine a result, reply with a simple instruction such as:
 
-The skill prioritizes relevant openings, adjusts searches using verified results, and can show the first five verified companies while continuing the full search. Tell it “more like this” or give an explicit exclusion to refine the next results.
-
-Searches use permitted employer sources and documented APIs or feeds within their terms. Restricted and unverified job boards are excluded from the resource list and recommendations. See the [active sources](references/job-sources.md) and [policy audit](references/source-policy-audit.md).
-
-## Sample report preview
-
-Download the [fictional HTML sample](examples/sample-report.html) and open it in your browser. GitHub shows the file's source; see [preview help and sample tables](docs/report-preview.md) or the [illustrated report guide](assets/reading-report.svg).
+> Focus on the five strongest frontend roles, keep my location preferences, and explain which resume changes would improve each match.
 
 ## More help
 
-- [Step-by-step guide, prompts and troubleshooting](docs/usage-guide.md)
-- [Source access and privacy](docs/advanced.md#employer-first-access)
-- [Optional scripts and exports](docs/advanced.md#public-employer-board-collection-optional-advanced-use)
+- [Detailed usage guide](docs/usage-guide.md)
+- [Active job sources](references/job-sources.md)
+- [Source-policy audit](references/source-policy-audit.md)
+- [Privacy and advanced options](docs/advanced.md)
