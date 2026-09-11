@@ -10,7 +10,9 @@ Follow these six steps in your agent's conversation. You do not need to run Pyth
 
 ### 1. Install the skill once
 
-Already installed? Go to step 2. For a first installation in Codex, copy this into a conversation:
+Already installed? Go to step 2. Choose the installation method for your assistant.
+
+**Codex chat** — paste this into a Codex conversation:
 
 ```text
 Use $skill-installer to install job-search-assistant from
@@ -19,7 +21,33 @@ The skill is at the repository root, where SKILL.md is located.
 If it is already installed, tell me where it is and preserve existing changes.
 ```
 
+**Codex terminal (macOS/Linux)** — paste these lines into a shell if you prefer a direct clone:
+
+```sh
+mkdir -p ~/.codex/skills
+git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.codex/skills/job-search-assistant
+```
+
 This repository is private, so your GitHub account must have access. Use your existing authenticated connection; do not paste passwords or access tokens into a prompt. Other users need repository access from the owner before they can install it.
+
+**Claude Code terminal (macOS/Linux)** — paste these lines into a shell:
+
+```sh
+mkdir -p ~/.claude/skills
+git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.claude/skills/job-search-assistant
+```
+
+Start Claude Code after its clone and invoke the skill with `/job-search-assistant`. A destination that already exists makes `git clone` stop without overwriting it. To update an existing clone later, inspect and preserve any local work, then run the matching command:
+
+```sh
+# Codex
+git -C ~/.codex/skills/job-search-assistant pull --ff-only
+
+# Claude Code
+git -C ~/.claude/skills/job-search-assistant pull --ff-only
+```
+
+The SSH URL expects a GitHub SSH key. If you use HTTPS credentials instead, replace it with `https://github.com/HuskyCanCode/job-search-assistant.git`; never put a password or token in the command. The repository is a standalone skill, not a Claude Code plugin, so placing the folder under `~/.claude/skills/` makes `SKILL.md` and its supporting files available across projects.
 
 The installer reports the installation location. In your next message, ask to use `$job-search-assistant`; Codex normally discovers new skills automatically. If it does not appear, restart Codex. The exact picker depends on the product: Codex CLI and IDE support `$` or `/skills`, while ChatGPT uses `@` to select an available skill. This standalone repository is not a published plugin. See the [official skill documentation](https://learn.chatgpt.com/docs/build-skills) for supported products and local setup.
 

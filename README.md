@@ -8,7 +8,9 @@ Use it in an AI assistant that supports skills, file reading and permitted live 
 
 ### 1. Install once
 
-Already installed? Skip to step 2. Otherwise, paste this into Codex:
+Already installed? Skip to step 2. Otherwise, use one of these copy-and-paste options.
+
+**Codex chat**
 
 ```text
 Use $skill-installer to install job-search-assistant from
@@ -16,7 +18,21 @@ https://github.com/HuskyCanCode/job-search-assistant.
 SKILL.md is at the repository root. Preserve any existing installation changes.
 ```
 
-This repository is private, so your GitHub account needs access. If the installed skill does not appear, restart Codex. [Installation help](docs/usage-guide.md#1-install-the-skill-once).
+**Codex terminal (macOS/Linux)**
+
+```sh
+mkdir -p ~/.codex/skills
+git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.codex/skills/job-search-assistant
+```
+
+**Claude Code terminal (macOS/Linux)**
+
+```sh
+mkdir -p ~/.claude/skills
+git clone git@github.com:HuskyCanCode/job-search-assistant.git ~/.claude/skills/job-search-assistant
+```
+
+After either terminal command, invoke `$job-search-assistant` in Codex or `/job-search-assistant` in Claude Code. A clone stops if its destination already exists, so it does not overwrite an existing installation. This private repository requires GitHub access and an existing SSH key (use the HTTPS repository URL if that is how your GitHub authentication is configured). If a newly installed skill does not appear in Codex, restart Codex; Claude Code watches personal skill folders and can pick up changes in the current session. [Installation details and update instructions](docs/usage-guide.md#1-install-the-skill-once).
 
 ### 2. Start a search
 
@@ -40,7 +56,7 @@ Read the company overview, check each job's requirements, and open the posting w
 
 The skill does not submit applications or contact employers automatically.
 
-<details>
+<details open>
 <summary>See the illustrated walkthrough</summary>
 
 ![Six steps: install, share preferences, request a search, read the report, refine the shortlist, and open job links to apply yourself.](assets/getting-started.svg)
