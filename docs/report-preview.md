@@ -4,13 +4,13 @@
 
 ## Open the HTML sample
 
-The [fictional HTML report](../examples/sample-report.html) shows the full browser layout using the same four-company, Canada-based example as the [generated Markdown report](../examples/sample-report.md). It is separate from the shorter two-company illustration below. Both are fictional and leave the 20-company target visibly unmet.
+The [fictional HTML report](../examples/sample-report.html) opens with compact recommended job rows and **View job** links; company research and evidence expand when needed. It uses the same four-company, Canada-based example as the [generated Markdown report](../examples/sample-report.md). The shorter two-company illustration below shows Markdown's company-first layout. Both examples are fictional and leave the 20-company target visibly unmet.
 
 1. Open the HTML sample link. On GitHub, this opens the source/download page.
 2. Download the raw file and keep the `.html` extension.
 3. Open the downloaded file in your browser, using **Open File** if needed.
-4. Search by company, role or location, choose **Show postings**, and open **Compare openings in a table** or the detailed evidence. **Reset filters** returns to the full view.
-5. Use **Print / save PDF** for the whole report, including records hidden by your current filter.
+4. Search by company, role or location, choose **All postings** for other records, or expand **Why this match / details**. **Reset** returns to recommendations when available, otherwise all records.
+5. Use **Print** for the whole report, including records hidden by your current filter; choose Save as PDF in the browser dialog for a PDF copy.
 
 The report opens locally; no hosting or upload is needed. Filters only change the view, not scores or saved search preferences. Its company, job and evidence links are fictional examples. For your own results, ask: “Save my report as HTML I can open locally.” Keep personal reports private and share them only when their contents and source terms permit it.
 

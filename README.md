@@ -50,11 +50,11 @@ Without a resume or detailed profile, remove “and my attached resume” and na
 
 ### 3. Review and refine
 
-Read the company overview, check each job's requirements, and open the posting when ready to apply. To narrow the results, reply:
+Review the jobs and company details, check each job's requirements, and open the posting when ready to apply. To narrow the results, reply:
 
 > Focus on QA and application support. Keep my location preferences and show the five companies I should prioritize.
 
-For a browsable copy, ask: “Save this as an HTML report I can open locally.” The skill does not submit applications or contact employers automatically.
+For compact job rows with expandable company details, ask: “Save this as an HTML report I can open locally.” The skill does not submit applications or contact employers automatically.
 
 <details open>
 <summary>See the illustrated walkthrough</summary>

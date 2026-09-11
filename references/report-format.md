@@ -2,7 +2,7 @@
 
 ## Finished report
 
-Begin with a short date/scope/profile note and explain that match ratings measure documented fit, not hiring probability or employer reputation. Apply [source-policy-audit.md](source-policy-audit.md) to every source and delivered format. The first table must be a company overview; target 20 distinct relevant companies unless the user specifies another scope. Link each company name to its verified official website where permitted; if the website cannot be established, keep it unlinked and mark it unknown.
+Begin with a short date/scope/profile note and explain that match ratings measure documented fit, not hiring probability or employer reputation. Apply [source-policy-audit.md](source-policy-audit.md) to every source and delivered format. In chat and Markdown, the first table must be a company overview; target 20 distinct relevant companies unless the user specifies another scope. Link each company name to its verified official website where permitted; if the website cannot be established, keep it unlinked and mark it unknown.
 
 | Company / official website | Company match | Size / as of | Recent workforce trend | Latest publicly reported layoff | Up to 3 recommended jobs |
 | --- | --- | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ Show an **interim first-five** table once five distinct employers have recommend
 
 Keep every requested company column in the interim. For pending research, use `size.value: null`, `size.basis: "unknown"`, `headcount_trend.direction: "unknown"` and `latest_layoff.status: "unknown"`, with empty evidence arrays and honest pending notes/summaries. Unknown size can explain pending work in `scope`; dates not yet researched remain null. Never use zero employees, stable headcount or `none_found` layoffs to mean pending. A rating based on one scored recommendation remains provisional. Complete the workforce research after each employer qualifies; final unknowns need a real evidence/access limitation, not an unfinished preview placeholder.
 
-After that overview, show jobs grouped under each company in the same order. Within each company separate open recommendations, confirmed eligibility blockers, unverified leads and inactive jobs. Use these tables, splitting wide tables if needed:
+In chat and Markdown, follow that overview with jobs grouped under each company in the same order. Within each company separate open recommendations, confirmed eligibility blockers, unverified leads and inactive jobs. Use these tables, splitting wide tables if needed:
 
 | Priority | Role and direct job link | Company | Location / remote limits | Pay | Fit / coverage | Eligibility | Evidence, gaps, next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ Run from the skill repository root:
 python3 scripts/build_report.py private/search-input.json --output private/job-report.md --html private/job-report.html --csv private/job-report.csv --companies-csv private/company-report.csv
 ```
 
-`--output` is required and writes Markdown (`--markdown` is an alias). `--html` adds an optional browsable HTML report using the same validated evidence and derived scores; it supports version 2 company-first and version 1 job-only inputs. `--csv` writes an optional job summary, with company fields appended in version 2. `--companies-csv` writes a separate optional company summary and requires version 2. The helper uses Python 3.10+ and the standard library. It validates input, computes the rubric and renders tables without network requests. The agent must verify facts and classify evidence first. It cannot determine whether evidence is truthful or a job is actually open.
+`--output` is required and writes Markdown (`--markdown` is an alias). `--html` adds an optional browsable HTML report using the same validated evidence and derived scores; it supports version 2 company reports and version 1 job-only inputs. `--csv` writes an optional job summary, with company fields appended in version 2. `--companies-csv` writes a separate optional company summary and requires version 2. The helper uses Python 3.10+ and the standard library. It validates input, computes the rubric and renders tables without network requests. The agent must verify facts and classify evidence first. It cannot determine whether evidence is truthful or a job is actually open.
 
 Use `--overwrite` when deliberately regenerating existing output files. Input and output paths must be distinct. Jobs with established eligibility are ordered High, Medium, Explore, then Low, followed by Clarify eligibility, Review evidence, and Not scored. Within each priority, sort by descending fit and coverage, then identifier. Blocked, unverified, and closed records stay in their separate groups. This order places assessed opportunities before records that need more research; it is not a forecast of outcomes.
 
@@ -52,15 +52,17 @@ The helper renders the comparison and `search_sources` coverage tables, and pres
 
 Structured search profiles, collector triage/events, query-allocation observations, registry records and explicit feedback are separate workflow inputs/state. Do not paste them as new fields into the report schema or convert their labels into matching assessments. The host must supply permitted observations and actual verification evidence. Store progress files, final reports and local state only within applicable source retention rights; a local file or transcript is still a retained copy.
 
+HTML starts with compact job rows and **View job** links, defaulting to recommendations when available. Company research, the overview, scope and evidence remain in expandable sections; **All postings** reveals the remaining records. With no recommendations or a version 1 input, all records are shown by default. This presentation does not change Markdown's company-first layout or the underlying evidence and scores.
+
 Open a saved HTML report locally in a browser; creating it does not publish or upload it. The [fictional HTML sample](../examples/sample-report.html) demonstrates the layout, not verified vacancies or completion of the 20-company target. GitHub displays its source/download view; download the file to view the rendered report. See [advanced export guidance](../docs/advanced.md#try-the-report-generator) for browser behavior and [preview help](../docs/report-preview.md).
 
 ## JSON versions and company fields
 
-Use schema version 2 for all new company-first searches. Version 1 is retained for legacy job-only reports and does not require or invent company metadata. Both versions keep the job rubric unchanged.
+Use schema version 2 for all new reports. Version 1 is retained for legacy job-only reports and does not require or invent company metadata. Both versions keep the job rubric unchanged.
 
 | Root field | Type | Meaning |
 | --- | --- | --- |
-| schema_version | integer, 1 or 2 | Use 2 for company-first reports; 1 retains existing job-only behavior |
+| schema_version | integer, 1 or 2 | Use 2 for reports with company records; 1 retains existing job-only behavior |
 | resume_provided | boolean | True only when readable resume evidence or a sufficiently detailed candidate profile was actually used |
 | search_summary | string, optional | Scope, profile source, and material assumptions; never include unnecessary personal details |
 | search_sources | array, optional for older inputs; include for every live search | Actual source/query checks, defined below; access failure is not zero vacancies |

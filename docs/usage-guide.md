@@ -96,13 +96,13 @@ Show the first five verified companies as an interim update, then keep going to 
 
 Search effort shifts toward role and source combinations producing useful verified jobs, while still trying relevant alternatives. Local filtering keeps uncertain candidates for review and preserves all offered locations; it does not decide that you are unqualified from a missing keyword. Permitted employer links can be reused from a private registry, with current jobs checked again. Actual completion time depends on access and evidence; there is no fixed runtime. See the [fast search workflow](../references/search-strategy.md#fast-search-workflow).
 
-### 4. Read the company overview, then the jobs
+### 4. Review jobs and company details
 
 ![Illustrated fictional report showing the company website, employee size, match rating, workforce trend, layoff context and recommended job links, with explanations of ratings and unknown values.](../assets/reading-report.svg)
 
-Start with companies that interest you, then read their detailed job rows. The [sample report preview](report-preview.md) shows the table layout and explains how to open the fictional HTML sample in your browser.
+Markdown starts with the company overview. HTML opens with compact recommended job rows and **View job** links, with company research and evidence available to expand. The [sample report preview](report-preview.md) explains how to open the fictional HTML sample in your browser.
 
-In HTML, search by company, role or location and use **Show postings** to narrow the view. Open **Compare openings in a table** for a side-by-side summary, or expand a job's evidence to inspect the assessment. **Reset filters** shows everything again; **Print / save PDF** includes the whole report. These viewing controls do not change your search preferences or match scores.
+Search by company, role or location, or choose **All postings** to see other records. **Reset** returns to recommendations when available; otherwise all records are the default. Expand **Why this match / details** to inspect an assessment. **Print** includes the whole report. These viewing controls do not change your search preferences or match scores.
 
 | What you see | How to use it |
 | --- | --- |

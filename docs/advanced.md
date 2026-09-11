@@ -66,7 +66,7 @@ The first command creates empty local state; it does not find jobs. After the ho
 
 ## Try the report generator
 
-The included Python helper calculates scores from structured assessments and generates company-first tables from schema version 2. Version 1 job-only inputs continue to work. Python 3.10+ is sufficient; no third-party packages, API key, or network connection are needed for this helper.
+The included Python helper calculates scores from structured assessments and generates company-first Markdown tables from schema version 2. Version 1 job-only inputs continue to work. Python 3.10+ is sufficient; no third-party packages, API key, or network connection are needed for this helper.
 
 ```sh
 python3 scripts/build_report.py examples/sample-input.json --output reports/sample-report.md --html reports/sample-report.html --csv reports/sample-report.csv --companies-csv reports/sample-companies.csv
@@ -75,17 +75,19 @@ python3 -m unittest discover -s tests -v
 
 The agent first reads the resume, searches, verifies postings, and fills the JSON evidence. This separate report helper does not parse raw resumes or discover jobs. Include `search_sources` and per-job `discovered_via` for live searches. See the [input contract and report format](../references/report-format.md), [matching rubric](../references/resume-matching.md), and [search strategy](../references/search-strategy.md).
 
-`--output` remains required for Markdown; `--html` adds a companion, and `--overwrite` permits intentional replacement of existing outputs. The HTML uses the same validated input, derived scores, ordering, source evidence and actual company shortfall as the other formats. Version 1 remains job-only and does not invent company research fields.
+`--output` remains required for Markdown; `--html` adds a companion, and `--overwrite` permits intentional replacement of existing outputs. The HTML uses the same validated input, derived scores, source evidence and actual company shortfall as the other formats. It starts with compact grouped job rows and **View job** links, with company research, scope and evidence kept in expandable sections. Version 1 remains job-only and does not invent company research fields.
 
 The HTML is a self-contained local file with no external assets, automatic network requests or browser storage. Open it directly in a browser; company, job and evidence links visit their destinations only when you choose them. Exporting a report does not publish it, refresh vacancies or upload candidate information. Viewing an export does not update the search profile or record feedback; request refinements in the skill conversation. Source attribution, display and retention requirements still apply to the HTML; use a compatible rendering or omit incompatible source material as the report contract requires.
 
-Search matches company, title or location. **Show postings** selects all postings, recommendations, records needing review, or blocked/unverified/closed records; **Reset filters** restores the full view. Company summaries and headline totals remain based on the whole report, with a separate visible-record count. Expand **Compare openings in a table** for each company's side-by-side job summary; its rows follow the filters. Expand company research, job evidence, constraints, sources and methodology to inspect their details. **Print / save PDF** includes all records and comparison rows, even those hidden by a filter, and expands disclosures before restoring their previous state. Without JavaScript, filtering controls stay hidden, all records are visible and native disclosures still work. Version 1 uses one job comparison table and omits the company overview and **Recommended** filter.
+Search matches company, title or location. **Show postings** defaults to **Recommended** when version 2 has recommendations, otherwise **All postings**; other options cover review, blocked, unverified and closed records. **Reset** returns to that initial view. Report totals remain complete, with a separate visible-record count. Expand **Why this match / details**, company research or **Compare openings in a table** for more context. **Print** includes all records and comparison rows, regardless of filters, and expands disclosures before restoring their previous state. Without JavaScript, controls stay hidden, all records are visible and native disclosures still work. Version 1 omits the company overview and **Recommended** filter.
 
 The fictional sample is available as [HTML](../examples/sample-report.html) and [Markdown](../examples/sample-report.md). It uses synthetic companies, candidate information and reserved example URLs; it is not a list of live vacancies or a completed 20-company search. GitHub shows HTML as source/download, so download it and open the saved file locally to see the rendered layout. The [sample search plan](../examples/sample-search-plan.md) demonstrates keyword expansion and related-role suggestions.
 
 To customize the appearance, edit the CSS or layout in [assets/report-template.html](../assets/report-template.html), preserving its named placeholders and the markup needed by its controls. [scripts/render_html.py](../scripts/render_html.py) fills the template; each generated report includes its styles and script locally. The sample report is rendered output, not the template source. Change evidence in the report input and regenerate all formats so scores and sources stay consistent.
 
 ## Report contents
+
+Markdown uses the order below; HTML puts job rows first and keeps research and evidence expandable.
 
 | Table | Purpose |
 | --- | --- |

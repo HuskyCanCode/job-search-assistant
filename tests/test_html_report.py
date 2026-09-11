@@ -128,6 +128,62 @@ def assert_score(test, node, result):
 
 
 class HtmlContentTests(unittest.TestCase):
+    def test_recommended_is_default_only_when_company_recommendations_exist(self):
+        no_recommendations = sample()
+        blocked = job("blocked")
+        blocked["hard_constraints"][0]["status"] = "unmet"
+        no_recommendations["jobs"] = [blocked, job("closed", posting_status="closed"),
+                                      job("unverified", posting_status="unverified"),
+                                      job("incomplete", job_description_complete=False)]
+        empty = sample()
+        empty["jobs"] = []
+        for label, data, expected in (("company recommendations", sample(), "recommended"),
+                                      ("no eligible recommendations", no_recommendations, "all"),
+                                      ("empty report", empty, "all"),
+                                      ("legacy report", sample(1), "all")):
+            with self.subTest(case=label):
+                _, document = render(data)
+                selected = [node.attrs["value"] for node in document.by_id("report-status").walk()
+                            if node.tag == "option" and "selected" in node.attrs]
+                self.assertEqual(selected, [expected])
+                cards = document.nodes(attribute="data-job")
+                self.assertEqual(len(cards), len(data["jobs"]))
+                self.assertTrue(all("hidden" not in card.attrs for card in cards))
+
+    def test_compact_rows_keep_fit_cautions_visible_and_details_available(self):
+        data = sample()
+        record = data["jobs"][0]
+        record["requirements"][0].update(status="unknown", evidence="")
+        record["hard_constraints"] = []
+        record["notes"] = "Research detail retained after simplifying the row."
+        record["discovered_via"] = [{"source": "Original discovery", "url": "https://example.com/origin"}]
+        _, document = render(data)
+        card = document.nodes(attribute="data-job")[0]
+        details = next(node for node in card.walk() if node.tag == "details"
+                       and "evidence" in node.attrs.get("class", "").split())
+        self.assertNotIn("open", details.attrs)
+
+        visible_links = []
+
+        def outside_details(node):
+            if node.tag == "details":
+                return ""
+            if node.tag == "a" and "href" in node.attrs:
+                visible_links.append(node.attrs["href"])
+            return "".join(outside_details(child) if isinstance(child, Node) else child for child in node.children)
+
+        visible = outside_details(card)
+        result = report.assess(record, True)
+        self.assertIn(f'{result["score"]:.1f}/100', visible)
+        for caution in (result["assessment"], result["eligibility"], result["priority"]):
+            self.assertIn(caution.lower(), visible.lower())
+        self.assertIn(record["title"], visible)
+        self.assertIn(record["url"], visible_links)
+        self.assertIn(record["discovered_via"][0]["url"], details.links())
+        for detail in (record["posted_at"], record["checked_at"], record["notes"],
+                       record["requirements"][1]["evidence"], "No constraints supplied"):
+            self.assertIn(detail, details.text())
+
     def test_v1_and_v2_comparison_rows_link_to_matching_cards_and_preserve_status(self):
         for version in (1, 2):
             with self.subTest(version=version):
@@ -198,7 +254,7 @@ class HtmlContentTests(unittest.TestCase):
                          job("clarify", hard_constraints=[])]
         data["companies"].append(company("empty", "Empty company", None))
         html, document = render(data)
-        self.assertLess(html.index('id="company-overview"'), html.index('id="job-details"'))
+        self.assertLess(html.index('id="job-details"'), html.index('id="company-overview"'))
         results = report.company_assessments(data)
         rows = document.nodes(attribute="data-company-row")
         self.assertEqual(len(rows), len(data["companies"]))

@@ -125,40 +125,50 @@ def job_evidence(job, result, resume, api):
     return ''.join(parts)
 
 
-def job_card(job, result, resume, recommended, key, api):
+def job_card(job, result, resume, recommended, key, api, show_company=False):
     group = api.job_group(job, result)
     review = group in ("open", "unverified") and result["priority"] in (
         "Clarify eligibility", "Review evidence", "Not scored", "Lead only")
     search = " ".join((job["company"], job["title"], job["location"]))
     attrs = (f'data-job data-search="{text(search)}" data-recommended="{str(recommended).lower()}" '
              f'data-review="{str(review).lower()}" data-nonactive="{str(group != "open").lower()}"')
-    status_label = {"open": "Open posting", "blocked": "Eligibility blocker", "unverified": "Unverified lead", "closed": "Closed posting"}[group]
-    tone = "good" if group == "open" else "caution" if group in ("blocked", "unverified") else "neutral"
-    markers = (badge("Recommended", "good") if recommended else "") + badge(status_label, tone)
-    markers += badge(result["priority"])
-    facts = (("Location", job["location"]), ("Pay", job["salary"] or "Not posted / unknown"),
+    markers = badge(result["priority"], "good" if result["priority"] == "High" else "neutral")
+    if group != "open":
+        status_label = {"blocked": "Eligibility blocker", "unverified": "Unverified lead", "closed": "Closed posting"}[group]
+        markers += badge(status_label, "caution" if group in ("blocked", "unverified") else "neutral")
+    facts = (("Company", job["company"]), ("Location", job["location"]), ("Pay", job["salary"] or "Not posted / unknown"),
              ("Posted", job["posted_at"] or "Unknown"), ("Checked", job["checked_at"]),
-             ("Full description", "Complete" if job["job_description_complete"] else "Incomplete / unavailable"))
+             ("Full description", "Complete" if job["job_description_complete"] else "Incomplete / unavailable"),
+             ("Recorded status", job["posting_status"]))
     meta = '<dl class="job-meta">' + ''.join(f'<div><dt>{label}</dt><dd>{text(value)}</dd></div>' for label, value in facts) + '</dl>'
     strengths = result["strengths"]
     gaps = result["constraint_issues"] + result["gaps"] + ["Unknown: " + item for item in result["unknowns"]]
     highlights = []
     for label, values, empty in (("Documented strengths", strengths, "Not established"),
                                  ("Gaps & questions", gaps, "None documented")):
-        summary = "; ".join(values[:3]) or empty
-        if len(values) > 3:
-            summary += f"; {len(values) - 3} more in evidence"
+        summary = "; ".join(values) or empty
         highlights.append('<div><h4>' + label + '</h4>' + paragraph(summary) + '</div>')
-    return (f'<article class="job-card" id="{key}" {attrs}>'
-            '<div class="job-top"><div><div class="badges">' + markers + '</div>'
-            '<h3>' + link(job["url"], job["title"]) + '</h3><p class="company-byline">' + text(job["company"]) + '</p></div>'
-            '<div class="job-score">' + score_markup(result) + f'<span class="small">{text(result["confidence"])} confidence</span></div></div>'
-            + meta + '<div class="job-highlights">' + ''.join(highlights) + '</div>'
+    if result["score"] is None:
+        compact_score = '<strong class="score-value">N/A</strong><span class="score-label">' + text(result["assessment"].capitalize()) + '</span>'
+    else:
+        compact_score = f'<strong class="score-value">{result["score"]:.1f}<span>/100</span></strong>'
+        if result["assessment"] == "provisional":
+            compact_score += '<span class="score-label">Provisional</span>'
+    compact_score += '<span class="eligibility-line">Eligibility: <strong>' + text(result["eligibility"]) + '</strong></span>'
+    location_pay = text(job["location"]) + ' · ' + text(job["salary"] or "Pay not posted / unknown")
+    company_line = '<span class="company-byline">' + text(job["company"]) + ' · </span>' if show_company else ''
+    match_detail = ('<div class="match-details"><h4>Fit & evidence</h4>' + score_markup(result)
+                    + f'<span class="small">{text(result["confidence"])} confidence · Eligibility {text(result["eligibility"])}</span></div>')
+    return (f'<article class="job-card job-row" id="{key}" {attrs}>'
+            '<div class="job-top"><div class="job-main"><div class="badges">' + markers + '</div>'
+            '<h3>' + link(job["url"], job["title"]) + '</h3><p class="job-location">' + company_line + location_pay + '</p></div>'
+            '<div class="job-score">' + compact_score + '</div><div class="job-actions">'
+            + link(job["url"], "View job", "view-job") + '</div></div>'
+            + '<details class="evidence"><summary>Why this match / details</summary>'
+            + '<div class="details-body">' + meta + match_detail
+            + '<div class="job-highlights">' + ''.join(highlights) + '</div>'
             + '<p class="next-action"><strong>Next action</strong> ' + text(result["next_action"]) + '</p>'
-            + '<div class="eligibility-line">Eligibility: <strong>' + text(result["eligibility"]) + '</strong>'
-            + ' · Recorded status: ' + text(job["posting_status"]) + '</div>'
-            + '<details class="evidence"><summary>Evidence, constraints & sources <span aria-hidden="true">↗</span></summary>'
-            + '<div class="details-body">' + job_evidence(job, result, resume, api) + '</div></details></article>')
+            + job_evidence(job, result, resume, api) + '</div></details></article>')
 
 
 def company_overview(companies, results, keys, resume, api):
@@ -205,14 +215,13 @@ def company_overview(companies, results, keys, resume, api):
         rows.append(f'<tr data-company-row data-company-key="{key}">' + ''.join(f'<td>{cell}</td>' for cell in cells) + '</tr>')
     if not rows:
         rows = ['<tr><td colspan="6" class="empty-cell">No companies supplied.</td></tr>']
-    return ('<section id="company-overview" class="report-section"><div class="section-heading"><div>'
-            '<span class="eyebrow">01 / The shortlist</span><h2>Company overview</h2></div>'
-            '<span class="section-note">Company websites · up to 3 recommended roles</span></div>'
+    return ('<section id="company-overview" class="report-section"><details class="company-overview-disclosure">'
+            '<summary>Company research: size, trends & layoffs</summary>'
             '<div class="table-scroll company-table-wrap" role="region" aria-label="Company overview; scroll to see all columns" tabindex="0">'
             '<table class="company-table"><caption class="sr-only">Company overview with match, size, trend, reported layoffs and recommended jobs</caption>'
             '<thead><tr><th scope="col">Company</th><th scope="col">Company match</th><th scope="col">Company size</th>'
             '<th scope="col">Headcount trend</th><th scope="col">Latest reported layoff</th><th scope="col">Recommended jobs</th></tr></thead>'
-            '<tbody>' + ''.join(rows) + '</tbody></table></div></section>')
+            '<tbody>' + ''.join(rows) + '</tbody></table></div></details></section>')
 
 
 def source_audit(data):
@@ -270,23 +279,33 @@ def render_html(data, report_api):
     dates = ([job["checked_at"] for job in jobs] + [company["checked_at"] for company in companies]
              + [source["checked_at"] for source in data.get("search_sources", [])])
     latest = max(dates) if dates else None
-    meta = '<span>Job search assistant</span><span>' + text("Latest evidence check: " + latest if latest else "Research dates unavailable") + '</span>'
+    meta = '<span class="check-date">' + text("Latest evidence check: " + latest if latest else "Research dates unavailable") + '</span>'
+    preview = " ".join(data.get("search_summary", "").split())
+    if len(preview) > 100:
+        preview = preview[:99].rsplit(" ", 1)[0] + "…"
+    if preview:
+        meta += '<span class="scope-preview">' + text(preview) + '</span>'
     scope = paragraph(data.get("search_summary") or "No search scope was supplied. Review the recorded evidence and source limits before taking action.")
     scope += paragraph("Posting status and research were supplied by the researcher. This offline report does not verify links or read your résumé.", "small muted")
     if not version_two:
         scope += paragraph("Legacy job-only report: company research, company ratings, company target coverage and top-three company recommendations were not supplied.", "notice-inline")
     stats = []
     if version_two:
-        stats.extend(((str(len(companies)), "Companies researched", "Distinct company records"),
-                      (f'{qualifying}<span> / {target}</span>', "Qualifying companies", f'{max(0, target - qualifying)} below the target')))
-    stats.append((str(opened), "Recorded open postings", "Researcher-verified status; includes blockers"))
-    stats.append((str(len(recommended)) if version_two else str(len(jobs)),
-                  "Recommended jobs" if version_two else "Job records", "Up to 3 per company" if version_two else "No company recommendations supplied"))
-    stats_html = ''.join('<div class="stat"><strong>' + value + '</strong><span>' + label + '</span><small>' + note + '</small></div>'
-                         for value, label, note in stats)
-    filters = '<option value="all">All postings</option>'
+        stats.extend(((str(len(recommended)), "recommended jobs"),
+                      (f'{qualifying}<span> of {target}</span>', "companies qualify")))
+        scope += paragraph(f'Whole report: {len(companies)} companies researched; {qualifying} qualifying companies '
+                           f'against a target of {target}; {max(0, target - qualifying)} below the target. '
+                           f'{len(recommended)} recommended jobs, up to three per company.', "small muted")
+    else:
+        stats.append((str(len(jobs)), "job records"))
+    scope += paragraph(f'{opened} recorded-open postings in the whole report, including any eligibility blockers. '
+                       'These are researcher-supplied statuses, not fresh verification by this offline page.', "small muted")
+    stats_html = ''.join('<span class="stat"><strong>' + value + '</strong> <span>' + label + '</span></span>'
+                         for value, label in stats)
+    default_recommended = version_two and bool(recommended)
+    filters = '<option value="all"' + ('' if default_recommended else ' selected') + '>All postings</option>'
     if version_two:
-        filters += '<option value="recommended">Recommended</option>'
+        filters += '<option value="recommended"' + (' selected' if default_recommended else '') + '>Recommended</option>'
     filters += '<option value="review">Needs review</option><option value="nonactive">Blocked / unverified / closed</option>'
     company_html = ""
     if version_two:
@@ -298,19 +317,28 @@ def render_html(data, report_api):
             cards = ''.join(job_card(job, assessments[job["id"]], resume, job["id"] in recommended,
                                      job_keys[job["id"]], api) for job in result["jobs"])
             title = link(company["url"], company["name"]) if company["url"] else text(company["name"])
+            company_match = ''
+            if result["score"] is not None:
+                company_match = f'<span class="company-fit">Company fit {result["score"]:.1f}/100'
+                if result["assessment"] == "provisional":
+                    company_match += ' · provisional'
+                company_match += '</span>'
             sections.append(f'<section class="company-section" id="{key}" data-company-section data-company-key="{key}" '
                             f'data-company-name="{text(company["name"])}"><div class="company-heading"><h2>{title}</h2>'
-                            f'<span>{len(result["jobs"])} job records · {len(result["recommendations"])} recommended</span></div>'
-                            f'<details class="company-research" id="{key}-facts"><summary>Company research & rating sources</summary>'
+                            + company_match + f'<span class="company-counts">{len(result["jobs"])} job records · {len(result["recommendations"])} recommended</span></div>'
+                            + (cards or '<p class="empty-cell">No job records supplied for this company.</p>')
+                            + f'<details class="company-research" id="{key}-facts"><summary>Company research & rating sources</summary>'
                             + company_facts(company, result, api) + '</details>'
                             + job_comparison(result["jobs"], assessments, job_keys)
-                            + (cards or '<p class="empty-cell">No job records supplied for this company.</p>') + '</section>')
+                            + '</section>')
     else:
-        sections = [job_comparison(jobs, assessments, job_keys)]
-        sections.extend(job_card(job, assessments[job["id"]], resume, False, job_keys[job["id"]], api) for job in jobs)
-    jobs_html = ('<section id="job-details" class="report-section"><div class="section-heading"><div><span class="eyebrow">'
-                 + ('02 / A closer look' if version_two else '01 / A closer look') + '</span><h2>'
-                 + ('Jobs by company' if version_two else 'Job details') + '</h2></div><span class="section-note">Documented fit · evidence · next steps</span></div>'
+        sections = [job_card(job, assessments[job["id"]], resume, False, job_keys[job["id"]], api, show_company=True) for job in jobs]
+        sections.append(job_comparison(jobs, assessments, job_keys))
+    section_note = ('Up to 3 per company; fit is not hiring odds.' if default_recommended else
+                    'No recommended openings yet; all records are available.' if version_two else
+                    'Fit describes documented alignment, not hiring odds.')
+    jobs_html = ('<section id="job-details" class="report-section"><div class="section-heading"><h2 id="results-title">Job records</h2>'
+                 + '<span class="section-note">' + section_note + '</span></div>'
                  + ''.join(sections) + ('' if jobs else '<p class="empty-cell">No jobs were supplied. No job fit scores or recommendations were generated.</p>') + '</section>')
     method = ('<details id="methodology" class="audit-disclosure"><summary>How to read the scores & recommendations</summary><div class="details-body methodology">'
               + paragraph("Fit measures documented alignment, not employer quality, an ATS score, or the probability of an interview, offer or hiring. "
